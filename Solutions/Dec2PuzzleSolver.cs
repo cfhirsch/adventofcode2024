@@ -1,4 +1,6 @@
-﻿using adventofcode2024.Utilities;
+﻿using System.Data;
+using System.Security.AccessControl;
+using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -6,66 +8,85 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
+            return Solve(partTwo: false, test: test);
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return Solve(partTwo: true, test: test);
+        }
+
+        private static string Solve(bool partTwo, bool test)
+        {
             int numSafe = 0;
             foreach (string line in PuzzleReader.GetPuzzleInput(2, test))
             {
-                var nums = line.Split(" ").Select(x => Int32.Parse(x)).ToArray();
-                var sequenceState = SequenceState.Start;
-                bool safe = true;
-                for (int i = 1; i < nums.Length; i++)
-                {
-                    int diff = Math.Abs(nums[i] - nums[i - 1]);
-                    if (diff < 1 || diff > 3)
-                    {
-                        safe = false;
-                    }
-                    else
-                    {
-                        switch (sequenceState)
-                        {
-                            case SequenceState.Start:
-                                sequenceState = nums[i] > nums[i - 1] ? SequenceState.Increasing : SequenceState.Decreasing;
-                                break;
+                var nums = line.Split(" ").Select(x => Int32.Parse(x)).ToList();
 
-                            case SequenceState.Increasing:
-                                if (nums[i] < nums[i - 1])
-                                {
-                                    safe = false;
-                                }
+                (bool isSafe, int badPos) = CheckLine(nums);
 
-                                break;
-
-                            case SequenceState.Decreasing:
-                                if (nums[i] > nums[i - 1])
-                                {
-                                    safe = false;
-                                }
-
-                                break;
-
-                            default:
-                                throw new ArgumentException($"Unexpected sequenceState {sequenceState}.");
-                        }
-                    }
-
-                    if (!safe)
-                    {
-                        break;
-                    }
-                }
-
-                if (safe)
+                if (isSafe)
                 {
                     numSafe++;
+                }
+                else if (partTwo)
+                {
+                    for (int i = 0; i <= nums.Count; i++)
+                    {
+                        (isSafe, _) = CheckLine(Enumerable.Range(0, nums.Count).Where(j => j != i).Select(j => nums[j]).ToList());
+                        if (isSafe)
+                        {
+                            numSafe++;
+                            break;
+                        }
+                    }
                 }
             }
 
             return numSafe.ToString();
         }
 
-        public string SolvePartTwo(bool test)
+        private static (bool, int) CheckLine(List<int> nums)
         {
-            throw new NotImplementedException();
+            var sequenceState = SequenceState.Start;
+            for (int i = 1; i < nums.Count; i++)
+            {
+                int diff = Math.Abs(nums[i] - nums[i - 1]);
+                if (diff < 1 || diff > 3)
+                {
+                    return (false, i - 1);
+                }
+                else
+                {
+                    switch (sequenceState)
+                    {
+                        case SequenceState.Start:
+                            sequenceState = nums[i] > nums[i - 1] ? SequenceState.Increasing : SequenceState.Decreasing;
+                            break;
+
+                        case SequenceState.Increasing:
+                            if (nums[i] < nums[i - 1])
+                            {
+                                return (false, i - 1);
+                            }
+
+                            break;
+
+                        case SequenceState.Decreasing:
+                            if (nums[i] > nums[i - 1])
+                            {
+                                return (false, i - 1);
+                            }
+
+                            break;
+
+                        default:
+                            throw new ArgumentException($"Unexpected sequenceState {sequenceState}.");
+                    }
+                }
+            }
+
+            return (true, -1);
         }
 
         private enum SequenceState
