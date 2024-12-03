@@ -1,5 +1,6 @@
 # adventofcode2024
-My solutions to 2024 Advent of Code puzzles.
+My solutions to 2024 Advent of Code puzzles. The assumption is that puzzle input files are in C:\AdventOfCode\2024, of the format "Dec<day>Test.txt" for test 
+files, "Dec<day>.txt" for the actual puzzle input.
 
 **Day 1:**
 
@@ -16,3 +17,9 @@ or the difference between consecutive items is out of bounds, the list is unsafe
 Part 2: Got the wrong answer the first time; if the original line was bad, I thought I would only have to check a list with either item in the first violation removed.
 But that gave me an answer that was too low. For unsafe lines, I ended up checking lists with any of the items from the original list removed, short circuiting if I found 
 one that was safe. That ended up giving me the correct answer, and not affecting the runtime too much. I'll have to think about why my original assumption was incorrect.
+
+One edge case I can think of is if we have, for example, 7, 8, 7, 6, 5. The offending pair is "8, 7" but one gets a safe list if one removes the first entry.
+
+**Day 3:**
+
+Part 1: Easy peasy. Just load the puzzle input into a string and run a regex match for mul((\d+),(\d+)).

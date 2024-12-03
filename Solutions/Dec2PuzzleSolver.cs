@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Security.AccessControl;
 using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
