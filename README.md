@@ -26,7 +26,7 @@ Part 1: Easy peasy. Just load the puzzle input into a string and run a regex mat
 
 Part 2: A little more involved but still not difficult. Basically I divided parsing of the input string into two modes:
 
-Do mode: Seek up to the next appearance of "don't()" or end of string if there are no more such appearances. Use the same regex as in part 1 to find all The
+Do mode: Seek up to the next appearance of "don't()" or end of string if there are no more such appearances. Use the same regex as in part 1 to find all the
 multiplication operations to perform. Switch to Don't Mode.
 
 Don't mode: Seek up to next appearance of "do()", or end of string if there are no more such appearances. Switch to Do mode.
@@ -40,3 +40,8 @@ For each row/column/diagonal of text, I used two regexes, one for "XMAS" and the
 
 Part 2: Part 2 was actually easier than Part 1 for me! I just setup the four possible X's as arrays, and looped through the grid looking for matches.
 I initially got the bounds checking wrong, but once I fixed that I got the right answer.
+
+**Day 5:**
+
+Part 1: Pretty straightforward. I parsed the rules into a list of tuples. I then iterated through the page lists, and for each item in each list, checked whether there 
+exists a subsequent page that is the first part of a rule that contains that item. 
