@@ -1,6 +1,6 @@
 # adventofcode2024
-My solutions to 2024 Advent of Code puzzles. The assumption is that puzzle input files are in C:\AdventOfCode\2024, of the format "Dec<day>Test.txt" for test 
-files, "Dec<day>.txt" for the actual puzzle input.
+My solutions to 2024 Advent of Code puzzles. The assumption is that puzzle input files are in C:\AdventOfCode\2024, of the format "Dec{day}Test.txt" for test 
+files, "Dec{day}.txt" for the actual puzzle input.
 
 **Day 1:**
 
@@ -32,3 +32,8 @@ multiplication operations to perform. Switch to Don't Mode.
 Don't mode: Seek up to next appearance of "do()", or end of string if there are no more such appearances. Switch to Do mode.
 
 In both the test example and my puzzle input, a "don't()" appears before a "do()", so I assumed that we always start in Do mode.
+
+**Day 4:**
+
+Part 1: Scanning each row and column in the input was straightforward, but it took me a bit to figure out how to get all diagonals without double counting.
+For each row/column/diagonal of text, I used two regexes, one for "XMAS" and the other for "SAMX" to count all the matches.
