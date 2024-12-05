@@ -44,4 +44,8 @@ I initially got the bounds checking wrong, but once I fixed that I got the right
 **Day 5:**
 
 Part 1: Pretty straightforward. I parsed the rules into a list of tuples. I then iterated through the page lists, and for each item in each list, checked whether there 
-exists a subsequent page that is the first part of a rule that contains that item. 
+exists a subsequent page that is the first part of a rule that contains that item.
+
+Part 2: This one took a little more work. I ended up refactoring my code a bit to handle both parts 1 and 2. A function common to both parts checks if a page list
+is valid. If it's not valid, and we're in part 2, then the code iterates through each item in the page list, fixing violations one at a time until there are none left,
+and then returns the corrected list.
