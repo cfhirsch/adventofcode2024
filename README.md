@@ -37,3 +37,6 @@ In both the test example and my puzzle input, a "don't()" appears before a "do()
 
 Part 1: Scanning each row and column in the input was straightforward, but it took me a bit to figure out how to get all diagonals without double counting.
 For each row/column/diagonal of text, I used two regexes, one for "XMAS" and the other for "SAMX" to count all the matches.
+
+Part 2: Part 2 was actually easier than Part 1 for me! I just setup the four possible X's as arrays, and looped through the grid looking for matches.
+I initially got the bounds checking wrong, but once I fixed that I got the right answer.
