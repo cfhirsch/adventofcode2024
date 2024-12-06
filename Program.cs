@@ -3,7 +3,7 @@ using adventofcode2024.Utilities;
 
 bool test = false;
 
-for (int i = 1; i <= 5; i++)
+for (int i = 1; i <= 6; i++)
 {
     IPuzzleSolver puzzleSolver = PuzzleSolverFactory.GetPuzzleSolver(i);
     Console.WriteLine("===========================================================================");

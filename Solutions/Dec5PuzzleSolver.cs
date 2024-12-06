@@ -99,7 +99,6 @@ namespace adventofcode2024.Solutions
                     {
                         return (false, pages, false);
                     }
-                        
                 }
             }
 
