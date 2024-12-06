@@ -54,3 +54,7 @@ and then returns the corrected list.
 
 Part 1: Straightforward. Read the file into a two dimensional char array, write the logic to move the guard, store every visited point into a hashset, return the number of 
 items in the hashset at the end.
+
+Part 2: Straightforward, although given that my solution took a few more seconds than I would like, there is likely an optimization that I'm missing. I simulate every possible
+modification that adds a boundary where there wasn't one already, and where the guard is no currently standing. I keep a hashset of visited squares and guard directions. If
+a square and guard direction has been hit before, we're in a loop. The other option is that the guard left the room.

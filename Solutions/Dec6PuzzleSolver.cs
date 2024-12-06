@@ -1,4 +1,5 @@
-﻿using System.Net.NetworkInformation;
+﻿using System.ComponentModel;
+using System.Net.NetworkInformation;
 using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
@@ -9,42 +10,52 @@ namespace adventofcode2024.Solutions
         {
             (char[,] grid, (int, int) guardPos) = ReadMap(test);
 
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
+            (int numVisited, _) = Simulate(grid, guardPos);
 
-            Direction guardDir = Direction.Up;
-            var visited = new HashSet<(int, int)>();
-            visited.Add(guardPos);
-            while (true)
-            {
-                PrintMap(grid, test);
-
-                (int, int) nextPos = GetMove(guardPos.Item1, guardPos.Item2, guardDir);
-                if (!(nextPos.Item1 >= 0 && nextPos.Item1 < numRows && nextPos.Item2 >= 0 && nextPos.Item2 < numCols))
-                {
-                    break;
-                }
-
-                if (grid[nextPos.Item1, nextPos.Item2] == '#')
-                {
-                    guardDir = TurnRight(guardDir);
-                }
-                else
-                {
-                    grid[guardPos.Item1, guardPos.Item2] = '.';
-                    guardPos = nextPos;
-                    visited.Add(guardPos);
-                }
-
-                grid[guardPos.Item1, guardPos.Item2] = GetSymbol(guardDir);
-            }
-
-            return visited.Count().ToString();
+            return numVisited.ToString();
         }
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            (char[,] grid, (int, int) guardPos) = ReadMap(test);
+            int numThatStartCycle = 0;
+            
+            for (int i = 0; i < grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+                    if ((i, j) == guardPos || grid[i, j] == '#')
+                    {
+                        continue;
+                    }
+
+                    char[,] currentGrid = CopyGrid(grid, (i, j));
+                    (_, bool cycle) = Simulate(currentGrid, guardPos, i == guardPos.Item1 && j == guardPos.Item2 - 1);
+
+                    grid[i, j] = '.';
+                    if (cycle)
+                    {
+                        numThatStartCycle++;
+                    }
+                }
+            }
+
+            return numThatStartCycle.ToString();
+        }
+
+        private static char[,] CopyGrid(char[,] grid, (int, int) posToMark)
+        {
+            var newGrid = new char[grid.GetLength(0), grid.GetLength(1)];
+
+            for (int i = 0; i < grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+                    newGrid[i, j] = ((i, j) == posToMark) ? '#' : grid[i, j];
+                }
+            }
+
+            return newGrid;
         }
 
         private static (int, int) GetMove(int x, int y, Direction dir)
@@ -89,24 +100,6 @@ namespace adventofcode2024.Solutions
             }
         }
 
-        private static void PrintMap(char[,] grid, bool test)
-        {
-            if (test)
-            {
-                for (int i = 0; i < grid.GetLength(0); i++)
-                {
-                    for (int j = 0; j < grid.GetLength(1); j++)
-                    {
-                        Console.Write(grid[i, j]);
-                    }
-
-                    Console.WriteLine();
-                }
-
-                Console.WriteLine();
-            }
-        }
-
         private static (char[,], (int x, int y)) ReadMap(bool test)
         {
             var lines = PuzzleReader.GetPuzzleInput(6, test).ToList();
@@ -133,6 +126,46 @@ namespace adventofcode2024.Solutions
             }
 
             return (grid, (x, y));
+        }
+
+        private static (int, bool) Simulate(char[,] grid, (int, int) startPos, bool test = false)
+        {
+            (int, int) guardPos = startPos;
+            int numRows = grid.GetLength(0);
+            int numCols = grid.GetLength(1);
+
+            Direction guardDir = Direction.Up;
+
+            var visited = new HashSet<((int, int), Direction)>();
+            visited.Add((startPos, guardDir));
+
+            while (true)
+            {
+                (int, int) nextPos = GetMove(guardPos.Item1, guardPos.Item2, guardDir);
+                if (!(nextPos.Item1 >= 0 && nextPos.Item1 < numRows && nextPos.Item2 >= 0 && nextPos.Item2 < numCols))
+                {
+                    return (visited.Select(x => x.Item1).Distinct().Count(), false);
+                }
+                
+                if (grid[nextPos.Item1, nextPos.Item2] == '#')
+                {
+                    guardDir = TurnRight(guardDir);
+                }
+                else
+                {
+                    grid[guardPos.Item1, guardPos.Item2] = '.';
+                    guardPos = nextPos;
+                }
+
+                if (visited.Contains((guardPos, guardDir)))
+                {
+                    return (visited.Select(x => x.Item1).Distinct().Count(), true);
+                }
+
+                visited.Add((guardPos, guardDir));
+
+                grid[guardPos.Item1, guardPos.Item2] = GetSymbol(guardDir);
+            }
         }
 
         private static Direction TurnRight(Direction dir)
