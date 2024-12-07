@@ -62,3 +62,6 @@ a square and guard direction has been hit before, we're in a loop. The other opt
 **Dec 7:**
 
 Part 1: Relatively straightforward if a little tedious. The hardest part was coming up with a way to iterate over all possible operand lists of length n.
+
+Part 2: It was easy to extend my solution for part one to handle new operator. However, it takes about 9 seconds for my code to solve this part, which is a tad slower 
+than I would like.
