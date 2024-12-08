@@ -73,4 +73,9 @@ Part 2: It was easy to extend my solution for part one to handle new operator. H
 than I would like.
 
 UPDATE: I optimized my solution by iterating and evaluating all possible chains of operations instead of doing them in separate loops. This shaved the time down 
-to a litte less than 1.5 seconds.
+to a little less than 1.5 seconds.
+
+**Dec 8:**
+
+Part 1: Right now I'm stumped on this one. My code gets the right answer on the test input, but the answer is too low for my puzzle input. I may end up just cribbing 
+someone else's solution for this one.
