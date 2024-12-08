@@ -12,7 +12,7 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartOne(bool test)
         {
-            return Solve(test, isPartTwo: false);   
+            return Solve(test, isPartTwo: false);
         }
 
         public string SolvePartTwo(bool test)
@@ -39,9 +39,8 @@ namespace adventofcode2024.Solutions
             long sum = 0;
             foreach (Equation equation in equations)
             {
-                foreach (List<Operator> operandList in Iterate(equation.Operands, isPartTwo))
+                foreach (long result in Evaluate(equation.Operands, isPartTwo))
                 {
-                    long result = Evaluate(equation.Operands, operandList);
                     if (result == equation.Result)
                     {
                         sum += result;
@@ -53,68 +52,24 @@ namespace adventofcode2024.Solutions
             return sum.ToString();
         }
 
-        internal static long Evaluate(List<int> numbers, List<Operator> operators)
+        internal static IEnumerable<long> Evaluate(IEnumerable<int> numbers, bool isPartTwo)
         {
-            long result = numbers[0];
-            for (int i = 1; i < numbers.Count; i++)
+            if (numbers.Count() == 1)
             {
-                switch (operators[i - 1])
-                {
-                    case Operator.Plus:
-                        result += numbers[i];
-                        break;
-
-                    case Operator.Times:
-                        result *= numbers[i];
-                        break;
-
-                    case Operator.Concat:
-                        result = Int64.Parse($"{result}{numbers[i]}");
-                        break;
-
-                    default:
-                        throw new ArgumentException($"Unexpected operator {operators[i - 1]}");
-                }
-            }
-
-            return result;
-        }
-
-        private static IEnumerable<List<Operator>> Iterate(List<int> operands, bool isPartTwo)
-        {
-            if (operands.Count == 1)
-            {
-                yield return new List<Operator>();
+                yield return numbers.First();
             }
             else
             {
-                int val = operands.First();
-                List<int> rest = operands.Skip(1).ToList();
-
-                foreach (List<Operator> result in Iterate(rest, isPartTwo))
+                int last = numbers.Last();
+                foreach (long result in Evaluate(numbers.Take(numbers.Count() - 1), isPartTwo))
                 {
-                    var opList = new List<Operator>();
-                    opList.Add(Operator.Plus);
+                    yield return result + last;
 
-                    opList = opList.Concat(result).ToList();
-
-                    yield return opList;
-
-                    opList = new List<Operator>();
-                    opList.Add(Operator.Times);
-
-                    opList = opList.Concat(result).ToList();
-
-                    yield return opList;
+                    yield return result * last;
 
                     if (isPartTwo)
                     {
-                        opList = new List<Operator>();
-                        opList.Add(Operator.Concat);
-
-                        opList = opList.Concat(result).ToList();
-
-                        yield return opList;
+                        yield return Int64.Parse($"{result}{last}");
                     }
                 }
             }
@@ -126,12 +81,5 @@ namespace adventofcode2024.Solutions
         public long Result { get; set; }
 
         public List<int> Operands { get; set; }
-    }
-
-    internal enum Operator
-    {
-        Plus,
-        Times,
-        Concat
     }
 }

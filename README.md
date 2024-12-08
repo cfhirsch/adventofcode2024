@@ -71,3 +71,6 @@ Part 1: Relatively straightforward if a little tedious. The hardest part was com
 
 Part 2: It was easy to extend my solution for part one to handle new operator. However, it takes about 9 seconds for my code to solve this part, which is a tad slower 
 than I would like.
+
+UPDATE: I optimized my solution by iterating and evaluating all possible chains of operations instead of doing them in separate loops. This shaved the time down 
+to a litte less than 1.5 seconds.
