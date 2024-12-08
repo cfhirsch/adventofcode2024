@@ -59,6 +59,12 @@ Part 2: Straightforward, although given that my solution took a few more seconds
 modification that adds a boundary where there wasn't one already, and where the guard is no currently standing. I keep a hashset of visited squares and guard directions. If
 a square and guard direction has been hit before, we're in a loop. The other option is that the guard left the room.
 
+UPDATE: I realized the only squares I need to modify are the ones that the guard visits in the unmodified grid - except for the guard's starting square. With that 
+realization I was able to reduce the time to solve part 2 from around 20 seconds to a little over 8 seconds. Still a little too slow. 
+
+I was alble to shave that down to a little over 4 seconds by replacing my original for loop with an iteration over the direction the guard is moving until I either hit
+an obstacle or leave the grid.
+
 **Dec 7:**
 
 Part 1: Relatively straightforward if a little tedious. The hardest part was coming up with a way to iterate over all possible operand lists of length n.

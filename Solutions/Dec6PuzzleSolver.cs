@@ -10,33 +10,26 @@ namespace adventofcode2024.Solutions
         {
             (char[,] grid, (int, int) guardPos) = ReadMap(test);
 
-            (int numVisited, _) = Simulate(grid, guardPos);
+            (HashSet<(int, int)> visited, _) = Simulate(grid, guardPos);
 
-            return numVisited.ToString();
+            return visited.Count.ToString();
         }
 
         public string SolvePartTwo(bool test)
         {
             (char[,] grid, (int, int) guardPos) = ReadMap(test);
             int numThatStartCycle = 0;
-            
-            for (int i = 0; i < grid.GetLength(0); i++)
+
+            (HashSet<(int, int)> visited, _) = Simulate(grid, guardPos);
+            foreach ((int i, int j) in visited.Where(v => v != guardPos))
             {
-                for (int j = 0; j < grid.GetLength(1); j++)
+                char[,] currentGrid = CopyGrid(grid, (i, j));
+                (_, bool cycle) = Simulate(currentGrid, guardPos, i == guardPos.Item1 && j == guardPos.Item2 - 1);
+
+                grid[i, j] = '.';
+                if (cycle)
                 {
-                    if ((i, j) == guardPos || grid[i, j] == '#')
-                    {
-                        continue;
-                    }
-
-                    char[,] currentGrid = CopyGrid(grid, (i, j));
-                    (_, bool cycle) = Simulate(currentGrid, guardPos, i == guardPos.Item1 && j == guardPos.Item2 - 1);
-
-                    grid[i, j] = '.';
-                    if (cycle)
-                    {
-                        numThatStartCycle++;
-                    }
+                    numThatStartCycle++;
                 }
             }
 
@@ -128,7 +121,7 @@ namespace adventofcode2024.Solutions
             return (grid, (x, y));
         }
 
-        private static (int, bool) Simulate(char[,] grid, (int, int) startPos, bool test = false)
+        private static (HashSet<(int, int)>, bool) Simulate(char[,] grid, (int, int) startPos, bool test = false)
         {
             (int, int) guardPos = startPos;
             int numRows = grid.GetLength(0);
@@ -137,33 +130,36 @@ namespace adventofcode2024.Solutions
             Direction guardDir = Direction.Up;
 
             var visited = new HashSet<((int, int), Direction)>();
-            visited.Add((startPos, guardDir));
+            (int, int) currentPos = startPos;
 
             while (true)
             {
-                (int, int) nextPos = GetMove(guardPos.Item1, guardPos.Item2, guardDir);
+                (int, int) nextPos = currentPos;
+
+                while ((nextPos.Item1 >= 0 && nextPos.Item1 < numRows && nextPos.Item2 >= 0 && nextPos.Item2 < numCols) &&
+                        grid[nextPos.Item1, nextPos.Item2] != '#')
+                {
+                    if (visited.Contains((nextPos, guardDir)))
+                    {
+                        return (visited.Select(x => x.Item1).ToHashSet(), true);
+                    }
+
+                    visited.Add((nextPos, guardDir));
+                    currentPos = nextPos;
+
+                    nextPos = GetMove(nextPos.Item1, nextPos.Item2, guardDir);
+                }
+
                 if (!(nextPos.Item1 >= 0 && nextPos.Item1 < numRows && nextPos.Item2 >= 0 && nextPos.Item2 < numCols))
                 {
-                    return (visited.Select(x => x.Item1).Distinct().Count(), false);
-                }
-                
-                if (grid[nextPos.Item1, nextPos.Item2] == '#')
-                {
-                    guardDir = TurnRight(guardDir);
+                    return (visited.Select(x => x.Item1).ToHashSet(), false);
                 }
                 else
                 {
-                    grid[guardPos.Item1, guardPos.Item2] = '.';
-                    guardPos = nextPos;
+                    guardDir = TurnRight(guardDir);
                 }
-
-                if (visited.Contains((guardPos, guardDir)))
-                {
-                    return (visited.Select(x => x.Item1).Distinct().Count(), true);
-                }
-
-                visited.Add((guardPos, guardDir));
-
+                grid[guardPos.Item1, guardPos.Item2] = '.';
+                guardPos = currentPos;
                 grid[guardPos.Item1, guardPos.Item2] = GetSymbol(guardDir);
             }
         }

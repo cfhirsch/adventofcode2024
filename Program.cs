@@ -15,14 +15,14 @@ for (int i = 1; i <= 7; i++)
     watch.Start();
     string result = puzzleSolver.SolvePartOne(test);
     watch.Stop();
-    Console.WriteLine($"Solution for Day {i}, Part One took {watch.ElapsedMilliseconds} to find, is {result}.");
+    Console.WriteLine($"Solution for Day {i}, Part One took {watch.ElapsedMilliseconds} ms to find, is {result}.");
 
     watch.Reset();
     watch.Start();
     result = puzzleSolver.SolvePartTwo(test);
     watch.Stop();
 
-    Console.WriteLine($"Solution for Day {i}, Part Two took {watch.ElapsedMilliseconds} to find, is {result}.");
+    Console.WriteLine($"Solution for Day {i}, Part Two took {watch.ElapsedMilliseconds} ms to find, is {result}.");
     Console.WriteLine("===========================================================================");
     Console.WriteLine();
 }
