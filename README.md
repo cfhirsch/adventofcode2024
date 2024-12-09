@@ -79,3 +79,5 @@ to a little less than 1.5 seconds.
 
 Part 1: Right now I'm stumped on this one. My code gets the right answer on the test input, but the answer is too low for my puzzle input. I may end up just cribbing 
 someone else's solution for this one.
+
+UPDATE: I ended up borrowing the solution from [here](https://github.com/itsnewtjam/aoc-2024/blob/master/src/solutions/day08.ts).

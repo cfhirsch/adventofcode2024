@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -25,25 +23,22 @@ namespace adventofcode2024.Solutions
                         (int, int) p1 = antennae[c][k];
                         (int, int) p2 = antennae[c][l];
 
-                        double a = (p2.Item2 - p1.Item2) / (1.0 * (p2.Item1 - p1.Item1));
-                        double b = p1.Item2 - a * p1.Item1;
+                        int rowDistance = p2.Item1 - p1.Item1;
+                        int colDistance = p2.Item2 - p1.Item2;
 
-                        for (int row = 0; row < numRows; row++)
+                        var antinode1 = (p1.Item1 - rowDistance, p1.Item2 - colDistance);
+                        var antinode2 = (p2.Item1 + rowDistance, p2.Item2 + colDistance);
+
+                        if (antinode1.Item1 >= 0 && antinode1.Item1 < numRows &&
+                            antinode1.Item2 >= 0 && antinode1.Item2 < numCols)
                         {
-                            (int, int) p3 = (row, (int)(a * row + b));
+                            antinodeLocations.Add(antinode1);
+                        }
 
-                            if (p3.Item2 < 0 || p3.Item2 > numCols - 1)
-                            {
-                                continue;
-                            }
-
-                            double d1 = Distance(p3.Item1, p3.Item2, p1.Item1, p1.Item2);
-                            double d2 = Distance(p3.Item1, p3.Item2, p2.Item1, p2.Item2);
-
-                            if (d1 == 2 * d2 || d2 == 2 * d1)
-                            {
-                                antinodeLocations.Add((p3.Item1, p3.Item2));
-                            }
+                        if (antinode2.Item1 >= 0 && antinode2.Item1 < numRows &&
+                            antinode2.Item2 >= 0 && antinode2.Item2 < numCols)
+                        {
+                            antinodeLocations.Add(antinode2);
                         }
                     }
                 }
@@ -55,16 +50,6 @@ namespace adventofcode2024.Solutions
         public string SolvePartTwo(bool test)
         {
             throw new NotImplementedException();
-        }
-
-        private static double Distance(int x1, int y1, int x2, int y2)
-        {
-            return Math.Sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
-        }
-
-        private static int Manhattan(int x1, int y1, int x2, int y2)
-        {
-            return Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
         }
 
         private static (char[,], Dictionary<char, List<(int, int)>>) ReadMap(bool test)
