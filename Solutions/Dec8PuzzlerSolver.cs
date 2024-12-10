@@ -49,7 +49,7 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            return "NotSolved";
         }
 
         private static (char[,], Dictionary<char, List<(int, int)>>) ReadMap(bool test)

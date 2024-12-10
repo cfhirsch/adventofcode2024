@@ -81,3 +81,9 @@ Part 1: Right now I'm stumped on this one. My code gets the right answer on the 
 someone else's solution for this one.
 
 UPDATE: I ended up borrowing the solution from [here](https://github.com/itsnewtjam/aoc-2024/blob/master/src/solutions/day08.ts).
+
+**Dec 9:**
+
+Part 1: Wrote some code to represent the puzzle input as a list of tuples, consisting of the id and number of sectors in each block (and id of -1 denotes a free space block).
+Then I start at the last block with file content, and move sectors into free sectors min(file size, free space) chunks at a time. After each move I connect
+the free blocks at the end of the list.
