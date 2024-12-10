@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -7,46 +6,15 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
-            (char[,] grid, Dictionary<char, List<(int, int)>> antennae) = ReadMap(test);
-
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
-
-            var antinodeLocations = new HashSet<(int, int)>();
-            foreach (char c in antennae.Keys)
-            {
-                for (int k = 0; k < antennae[c].Count - 1; k++)
-                {
-                    for (int l = k + 1; l < antennae[c].Count; l++)
-                    {
-                        (int, int) p1 = antennae[c][k];
-                        (int, int) p2 = antennae[c][l];
-
-                        int rowDistance = p2.Item1 - p1.Item1;
-                        int colDistance = p2.Item2 - p1.Item2;
-
-                        var antinode1 = (p1.Item1 - rowDistance, p1.Item2 - colDistance);
-                        var antinode2 = (p2.Item1 + rowDistance, p2.Item2 + colDistance);
-
-                        if (antinode1.Item1 >= 0 && antinode1.Item1 < numRows &&
-                            antinode1.Item2 >= 0 && antinode1.Item2 < numCols)
-                        {
-                            antinodeLocations.Add(antinode1);
-                        }
-
-                        if (antinode2.Item1 >= 0 && antinode2.Item1 < numRows &&
-                            antinode2.Item2 >= 0 && antinode2.Item2 < numCols)
-                        {
-                            antinodeLocations.Add(antinode2);
-                        }
-                    }
-                }
-            } 
-
-            return antinodeLocations.Count().ToString();
+            return Solve(test, isPartTwo: false);
         }
 
         public string SolvePartTwo(bool test)
+        {
+            return Solve(test, isPartTwo: true);
+        }
+
+        private static string Solve(bool test, bool isPartTwo)
         {
             (char[,] grid, Dictionary<char, List<(int, int)>> antennae) = ReadMap(test);
 
@@ -82,6 +50,11 @@ namespace adventofcode2024.Solutions
                         {
                             antinodeLocations.Add((x1, y1));
 
+                            if (!isPartTwo)
+                            {
+                                break;
+                            }
+
                             x1 -= rowDistance;
                             y1 -= colDistance;
                         }
@@ -90,18 +63,25 @@ namespace adventofcode2024.Solutions
                         {
                             antinodeLocations.Add((x2, y2));
 
+                            if (!isPartTwo)
+                            {
+                                break;
+                            }
+
                             x2 += rowDistance;
                             y2 += colDistance;
                         }
 
-                        while (x3 >= 0 && x3 < numRows && y3 >= 0 && y3 < numCols)
+                        if (isPartTwo)
                         {
-                            antinodeLocations.Add((x3, y3));
+                            while (x3 >= 0 && x3 < numRows && y3 >= 0 && y3 < numCols)
+                            {
+                                antinodeLocations.Add((x3, y3));
 
-                            x3 += rowDistance;
-                            y3 += colDistance;
+                                x3 += rowDistance;
+                                y3 += colDistance;
+                            }
                         }
-
                     }
                 }
             }
