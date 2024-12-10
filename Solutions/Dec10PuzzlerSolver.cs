@@ -6,6 +6,16 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
+            return Solve(test, isPartTwo: false);
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return Solve(test, isPartTwo: true);
+        }
+
+        private static string Solve(bool test, bool isPartTwo)
+        {
             (int[,] grid, List<(int, int)> zeroes) = ReadMap(test);
 
             int numRows = grid.GetLength(0);
@@ -15,18 +25,13 @@ namespace adventofcode2024.Solutions
 
             foreach ((int, int) zero in zeroes)
             {
-                sum += GetReachableNines(grid, numRows, numCols, zero.Item1, zero.Item2).Count();
+                sum += isPartTwo ? GetRating(grid, numRows, numCols, zero.Item1, zero.Item2) : GetScore(grid, numRows, numCols, zero.Item1, zero.Item2).Count();
             }
 
             return sum.ToString();
         }
 
-        public string SolvePartTwo(bool test)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static HashSet<(int, int)> GetReachableNines(int[,] grid, int numRows, int numCols, int i, int j)
+        private static HashSet<(int, int)> GetScore(int[,] grid, int numRows, int numCols, int i, int j)
         {
             if (grid[i, j] == 9)
             {
@@ -41,10 +46,29 @@ namespace adventofcode2024.Solutions
                 IEnumerable<(int, int)> neighbors = GetNeighbors(grid, numRows, numCols, i, j);
                 foreach ((int, int) neighbor in neighbors)
                 {
-                    set = set.Union(GetReachableNines(grid, numRows, numCols, neighbor.Item1, neighbor.Item2)).ToHashSet();
+                    set = set.Union(GetScore(grid, numRows, numCols, neighbor.Item1, neighbor.Item2)).ToHashSet();
                 }
 
                 return set;
+            }
+        }
+
+        private static long GetRating(int[,] grid, int numRows, int numCols, int i, int j)
+        {
+            if (grid[i, j] == 9)
+            {
+                return 1;
+            }
+            else
+            {
+                long sum = 0;
+                IEnumerable<(int, int)> neighbors = GetNeighbors(grid, numRows, numCols, i, j);
+                foreach ((int, int) neighbor in neighbors)
+                {
+                    sum += GetRating(grid, numRows, numCols, neighbor.Item1, neighbor.Item2);
+                }
+
+                return sum;
             }
         }
 

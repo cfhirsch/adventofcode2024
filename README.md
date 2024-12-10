@@ -92,3 +92,6 @@ the free blocks at the end of the list.
 
 Part 1: Not terribly difficult. I build up a list of zero locations when reading in the puzzle input. For each zero, I do a depth first search of all paths to a 9, 
 and add each 9 point found to a hsahset. The score for a zero location is the number of items in this hashset.
+
+Part 2: Very easy to modify the solution to Part 1 to recursively add up all the paths from a 0 to a 9. That is, the number of paths from a 0 to a 9 is the sum of 
+all paths from neighboring 1s to a 9, each of which is in turn the sum of all paths from neighboring 2s to a 9, etc.
