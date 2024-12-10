@@ -87,3 +87,8 @@ UPDATE: I ended up borrowing the solution from [here](https://github.com/itsnewt
 Part 1: Wrote some code to represent the puzzle input as a list of tuples, consisting of the id and number of sectors in each block (and id of -1 denotes a free space block).
 Then I start at the last block with file content, and move sectors into free sectors min(file size, free space) chunks at a time. After each move I connect
 the free blocks at the end of the list.
+
+**Dec 10:**
+
+Part 1: Not terribly difficult. I build up a list of zero locations when reading in the puzzle input. For each zero, I do a depth first search of all paths to a 9, 
+and add each 9 point found to a hsahset. The score for a zero location is the number of items in this hashset.

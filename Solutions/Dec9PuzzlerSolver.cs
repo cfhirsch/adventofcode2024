@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -94,7 +93,109 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            string input = PuzzleReader.GetPuzzleInput(9, test).First();
+
+            // We'll store a block as a tuple of ints. The first int will be the id of the block,
+            // the second int will be the number of sectors. If the first int is -1 this is an empty block.
+            bool empty = false;
+            var blocks = new List<(int, int)>();
+
+            int id = 0;
+
+            int maxId = -1;
+
+            foreach (char c in input)
+            {
+                if (!empty)
+                {
+                    if (id > maxId)
+                    {
+                        maxId = id;
+                    }
+
+                    blocks.Add((id, Int32.Parse(c.ToString())));
+                    id++;
+                }
+                else
+                {
+                    blocks.Add((-1, Int32.Parse(c.ToString())));
+                }
+
+                empty = !empty;
+            }
+
+            for (int i = maxId; i >= 0; i--)
+            {
+                (id, int numSectors) = blocks.First(b => b.Item1 == i);
+                int currentPos = blocks.LastIndexOf((id, numSectors));
+
+                (_, int numFree) = blocks.First(b => b.Item1 == -1);
+                int freeIndex = blocks.IndexOf((-1, numFree));
+
+                while (numFree < numSectors && freeIndex < currentPos)
+                {
+                    if (!blocks.Skip(freeIndex + 1).Any(b => b.Item1 == -1))
+                    {
+                        break;
+                    }
+
+                    (_, numFree) = blocks.Skip(freeIndex + 1).FirstOrDefault(b => b.Item1 == -1);
+                    freeIndex = blocks.IndexOf((-1, numFree), freeIndex + 1);
+                }
+
+                if (numFree < numSectors)
+                {
+                    continue;
+                }
+
+                blocks.Insert(freeIndex, (id, numSectors));
+                freeIndex++;
+                currentPos++;
+
+                numFree -= numSectors;
+                if (numFree == 0)
+                {
+                    blocks.RemoveAt(freeIndex);
+                    currentPos--;
+                }
+                else
+                {
+                    blocks[freeIndex] = (-1, numFree);
+                }
+
+                blocks[currentPos] = (-1, numSectors);
+                
+                // Connect current sector to any previous empty sectors.
+                int pos = blocks.Count - 1;
+                while (pos > 0 && blocks[pos - 1].Item1 == -1)
+                {
+                    blocks[pos - 1] = (-1, blocks[pos - 1].Item2 + blocks[pos].Item2);
+                    blocks.RemoveAt(pos);
+                    pos--;
+                }
+            }
+
+            long checkSum = 0;
+            int index = 0;
+            foreach ((int, int) tuple in blocks)
+            {
+                if (tuple.Item1 == -1)
+                {
+                    index += tuple.Item2;
+                }
+                else
+                {
+                    for (int j = 1; j <= tuple.Item2; j++)
+                    {
+                        checkSum += tuple.Item1 * index;
+                        index++;
+                    }
+                }
+            }
+
+            // My answer is too small - so this part isn't correct yet, even though it worked on test input :|.
+            return "NA"; //checkSum.ToString();
         }
+
     }
 }
