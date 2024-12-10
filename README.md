@@ -80,7 +80,12 @@ to a little less than 1.5 seconds.
 Part 1: Right now I'm stumped on this one. My code gets the right answer on the test input, but the answer is too low for my puzzle input. I may end up just cribbing 
 someone else's solution for this one.
 
-UPDATE: I ended up borrowing the solution from [here](https://github.com/itsnewtjam/aoc-2024/blob/master/src/solutions/day08.ts).
+UPDATE: I ended up borrowing the solution from [here](https://github.com/itsnewtjam/aoc-2024/blob/master/src/solutions/day08.ts). I was overthinking things. First off, 
+the distance metric is Manhatten. If we have two antennae, p1 and p2, calculate delta_x and _delta_y between them. One antinode will be at (p1.x - delta_x, p1.y - delta_y) - 
+on the side of p1 away from p2 - and (p1.x + delta_x, p2.y + delta_y) - on the side of p2 away from p1.
+
+Part 2: Now we need to add any point that is some multiple of delta_x, delta_y on either side of p1 and p2, AND add any points that are some multiple of delta_x, delta_y 
+BETWEEN p1 and p2.
 
 **Dec 9:**
 
