@@ -201,7 +201,6 @@ namespace adventofcode2024.Solutions
                 }
             }
 
-            // My answer is too small - so this part isn't correct yet, even though it worked on test input :|.
             return checkSum.ToString();
         }
 
