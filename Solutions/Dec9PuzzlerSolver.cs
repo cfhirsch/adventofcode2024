@@ -3,7 +3,6 @@
 namespace adventofcode2024.Solutions
 {
     internal class Dec9PuzzlerSolver : IPuzzleSolver
-
     {
         public string SolvePartOne(bool test)
         {
@@ -118,7 +117,12 @@ namespace adventofcode2024.Solutions
                 }
                 else
                 {
-                    blocks.Add((-1, Int32.Parse(c.ToString())));
+                    int numSectors = Int32.Parse(c.ToString());
+
+                    if (numSectors > 0)
+                    {
+                        blocks.Add((-1, Int32.Parse(c.ToString())));
+                    }
                 }
 
                 empty = !empty;
@@ -139,11 +143,11 @@ namespace adventofcode2024.Solutions
                         break;
                     }
 
-                    (_, numFree) = blocks.Skip(freeIndex + 1).FirstOrDefault(b => b.Item1 == -1);
+                    (_, numFree) = blocks.Skip(freeIndex + 1).First(b => b.Item1 == -1);
                     freeIndex = blocks.IndexOf((-1, numFree), freeIndex + 1);
                 }
 
-                if (numFree < numSectors)
+                if (numFree < numSectors || freeIndex >= currentPos)
                 {
                     continue;
                 }
@@ -164,13 +168,17 @@ namespace adventofcode2024.Solutions
                 }
 
                 blocks[currentPos] = (-1, numSectors);
-                
-                // Connect current sector to any previous empty sectors.
+
+                // Compact empty sectors.
                 int pos = blocks.Count - 1;
-                while (pos > 0 && blocks[pos - 1].Item1 == -1)
+                while (pos > 0)
                 {
-                    blocks[pos - 1] = (-1, blocks[pos - 1].Item2 + blocks[pos].Item2);
-                    blocks.RemoveAt(pos);
+                    if (blocks[pos].Item1 == -1 && blocks[pos - 1].Item1 == -1)
+                    {
+                        blocks[pos - 1] = (-1, blocks[pos].Item2 + blocks[pos - 1].Item2);
+                        blocks.RemoveAt(pos);
+                    }
+                    
                     pos--;
                 }
             }
@@ -194,7 +202,7 @@ namespace adventofcode2024.Solutions
             }
 
             // My answer is too small - so this part isn't correct yet, even though it worked on test input :|.
-            return "NA"; //checkSum.ToString();
+            return checkSum.ToString();
         }
 
     }

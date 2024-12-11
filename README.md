@@ -93,6 +93,9 @@ Part 1: Wrote some code to represent the puzzle input as a list of tuples, consi
 Then I start at the last block with file content, and move sectors into free sectors min(file size, free space) chunks at a time. After each move I connect
 the free blocks at the end of the list.
 
+Part 2: I had to come back to this one. I would have thought this one would have been easier than Part 1, but I ended up having to do some debugging to figure out there
+was a bug in my intent to only look for free blocks to the left of each file that have enough space. After I fixed that, I got the right answer.
+
 **Dec 10:**
 
 Part 1: Not terribly difficult. I build up a list of zero locations when reading in the puzzle input. For each zero, I do a depth first search of all paths to a 9, 
