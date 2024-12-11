@@ -103,3 +103,8 @@ and add each 9 point found to a hsahset. The score for a zero location is the nu
 
 Part 2: Very easy to modify the solution to Part 1 to recursively add up all the paths from a 0 to a 9. That is, the number of paths from a 0 to a 9 is the sum of 
 all paths from neighboring 1s to a 9, each of which is in turn the sum of all paths from neighboring 2s to a 9, etc.
+
+**Dec 11:**
+
+Part 1: I'm starting with naive implementation where I parse the puzzle input into a list, and then update and insert items according to the rules. I got the correct answer,
+but it took over 21 seconds which is not great.

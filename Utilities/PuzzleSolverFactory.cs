@@ -33,10 +33,13 @@ namespace adventofcode2024.Utilities
                     return new Dec8PuzzlerSolver();
 
                 case 9:
-                    return new Dec9PuzzlerSolver();
+                    return new Dec9PuzzlerSolver(); 
 
                 case 10:
                     return new Dec10PuzzlerSolver();
+
+                case 11:
+                    return new Dec11PuzzlerSolver();
 
                 default:
                     throw new ArgumentOutOfRangeException("day");
