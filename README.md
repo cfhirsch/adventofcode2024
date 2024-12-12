@@ -108,3 +108,10 @@ all paths from neighboring 1s to a 9, each of which is in turn the sum of all pa
 
 Part 1: I'm starting with naive implementation where I parse the puzzle input into a list, and then update and insert items according to the rules. I got the correct answer,
 but it took over 21 seconds which is not great.
+
+**Dec 12:**
+
+Part 1: First, collect all the plots, where a plot is a HashSet of tuples (i, j). Go through each square in the grid, and do a breadth first search, using a visited
+HashSet to keep track of squares that have been already searched. To calculate the perimeter of a plot, enumerate each square, if there is no square above the current
+square in the hashset, then there's a side above that square, and similarly below and to the left and right. Aside from a bug in my initial breadth first search code This
+wasn't that difficult.
