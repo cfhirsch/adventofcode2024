@@ -1,10 +1,23 @@
-﻿using adventofcode2024.Utilities;
+﻿using System.Reflection;
+using System.Security;
+using System.Security.Cryptography;
+using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
     internal class Dec12PuzzleSolver : IPuzzleSolver
     {
         public string SolvePartOne(bool test)
+        {
+            return Solve(test, isPartTwo: false);
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return Solve(test, isPartTwo: true);
+        }
+
+        private static string Solve(bool test, bool isPartTwo)
         {
             char[,] grid = ReadMap(test);
 
@@ -28,15 +41,12 @@ namespace adventofcode2024.Solutions
             long price = 0;
             foreach (HashSet<(int, int)> plot in plots)
             {
-                price += CalculatePerimeter(plot) * plot.Count();
+                (int perimeter, int sides) = Calculate(plot);
+
+                price += plot.Count() * (isPartTwo ? sides : perimeter);
             }
 
             return price.ToString();
-        }
-
-        public string SolvePartTwo(bool test)
-        {
-            throw new NotImplementedException();
         }
 
         private static HashSet<(int, int)> GetPlot(char c, char[,] grid, (int, int) start, HashSet<(int, int)> visited)
@@ -63,37 +73,122 @@ namespace adventofcode2024.Solutions
             return squares;
         }
 
-        private static int CalculatePerimeter(HashSet<(int, int)> squares)
+        private static (int, int) Calculate(HashSet<(int, int)> squares)
         {
             int perimeter = 0;
+            int numSides = 0;
+
+            var lineSegments = new List<((int, int), SegmentPosition)>();
+
+            
             foreach ((int, int) square in squares)
             {
+                var nextSegments = new List<List<(int, int)>>();
+
                 // Is there a square above the current one?
                 if (!squares.Any(s => s.Item1 == square.Item1 - 1 && s.Item2 == square.Item2))
                 {
                     perimeter++;
+                    lineSegments.Add((square, SegmentPosition.Top));
                 }
 
                 // Is there a square below the current one?
                 if (!squares.Any(s => s.Item1 == square.Item1 + 1 && s.Item2 == square.Item2))
                 {
                     perimeter++;
+                    lineSegments.Add((square, SegmentPosition.Bottom));
                 }
 
                 // Is there a square to the left of the current one?
                 if (!squares.Any(s => s.Item1 == square.Item1 && s.Item2 == square.Item2 - 1))
                 {
                     perimeter++;
+                    lineSegments.Add((square, SegmentPosition.Left));
                 }
 
                 // Is there a square to the right of the current one?
                 if (!squares.Any(s => s.Item1 == square.Item1 && s.Item2 == square.Item2 + 1))
                 {
                     perimeter++;
+                    lineSegments.Add((square, SegmentPosition.Right));
                 }
             }
 
-            return perimeter;
+            int sides = 0;
+
+            // Now we need to collapse the line segments into equivalence classes.
+            // Two segments are in the same class if they are in the same position, and
+            // they are on the same line.
+
+            // Let's look at the segments along the top
+            var points = lineSegments.Where(l => l.Item2 == SegmentPosition.Top).Select(l => l.Item1).OrderBy(l => l).ToList();
+
+            while (points.Any())
+            {
+                var current = points.First();
+                points.Remove(current);
+
+                while (points.Any(p => p.Item1 == current.Item1 && p.Item2 == current.Item2 + 1))
+                {
+                    current = points.First(p => p.Item1 == current.Item1 && p.Item2 == current.Item2 + 1);
+                    points.Remove(current);
+                }
+
+                sides++;
+            }
+
+            // Let's look at the segments along the bottom.
+            points = lineSegments.Where(l => l.Item2 == SegmentPosition.Bottom).Select(l => l.Item1).OrderBy(l => l).ToList();
+
+            while (points.Any())
+            {
+                var current = points.First();
+                points.Remove(current);
+
+                while (points.Any(p => p.Item1 == current.Item1 && p.Item2 == current.Item2 + 1))
+                {
+                    current = points.First(p => p.Item1 == current.Item1 && p.Item2 == current.Item2 + 1);
+                    points.Remove(current);
+                }
+
+                sides++;
+            }
+
+            // Let's look at the segments along the left.
+            points = lineSegments.Where(l => l.Item2 == SegmentPosition.Left).Select(l => l.Item1).OrderBy(l => l).ToList();
+
+            while (points.Any())
+            {
+                var current = points.First();
+                points.Remove(current);
+
+                while (points.Any(p => p.Item1 == current.Item1 + 1 && p.Item2 == current.Item2))
+                {
+                    current = points.First(p => p.Item1 == current.Item1 + 1 && p.Item2 == current.Item2);
+                    points.Remove(current);
+                }
+
+                sides++;
+            }
+
+            // Let's look at the segments along the right.
+            points = lineSegments.Where(l => l.Item2 == SegmentPosition.Right).Select(l => l.Item1).OrderBy(l => l).ToList();
+
+            while (points.Any())
+            {
+                var current = points.First();
+                points.Remove(current);
+
+                while (points.Any(p => p.Item1 == current.Item1 + 1 && p.Item2 == current.Item2))
+                {
+                    current = points.First(p => p.Item1 == current.Item1 + 1 && p.Item2 == current.Item2);
+                    points.Remove(current);
+                }
+
+                sides++;
+            }
+
+            return (perimeter, sides);
         }
 
         private static IEnumerable<(int, int)> GetNeighbors(char c, char[,] grid, (int, int) current)
@@ -144,6 +239,14 @@ namespace adventofcode2024.Solutions
             }
 
             return grid;
+        }
+
+        private enum SegmentPosition
+        {
+            Top,
+            Right,
+            Bottom,
+            Left
         }
     }
 }

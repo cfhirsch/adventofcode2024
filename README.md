@@ -115,3 +115,9 @@ Part 1: First, collect all the plots, where a plot is a HashSet of tuples (i, j)
 HashSet to keep track of squares that have been already searched. To calculate the perimeter of a plot, enumerate each square, if there is no square above the current
 square in the hashset, then there's a side above that square, and similarly below and to the left and right. Aside from a bug in my initial breadth first search code This
 wasn't that difficult.
+
+Part 2: Took me a bit, but I finally came up with a solution where, as I'm counting the segments as in Part 1, I also store them and record whether they are on the top,
+bottom, left or right of the plot. Then for each position (top, left, right, bottom), I order then (left to right for top or bottom segments, top to bottom for left or right segments), 
+and for each one, iterate for as long as I can find a segment that connects to the current one. Increment the number of sides, move to the next segment, etc.
+
+I tried to make my solution a little more elegant, but that doesn't give the same answer, will have to revisit.
