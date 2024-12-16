@@ -44,7 +44,44 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            List<Robot> robots = GetRobots(false);
+            int numCols = 103;
+            int numRows = 101;
+
+            for (int i = 0; i < 100; i++)
+            {
+                foreach (Robot robot in robots)
+                {
+                    robot.Update(numRows, numCols);
+                }
+
+                if (i >= 40 && i < 50)
+                {
+                    Console.WriteLine($"{i} seconds");
+                    for (int k = 0; k < numCols; k++)
+                    {
+                        for (int j = 0; j < numRows; j++)
+                        {
+                            int count = robots.Count(x => x.Position.Item1 == k && x.Position.Item2 == j);
+                            if (count == 0)
+                            {
+                                Console.Write(".");
+                            }
+                            else
+                            {
+                                Console.Write($"{count}");
+                            }
+                        }
+
+                        Console.WriteLine();
+                    }
+
+                    Thread.Sleep(500);
+                }
+            }
+
+            return "NA";
+
         }
 
         private static List<Robot> GetRobots(bool test)

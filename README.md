@@ -141,3 +141,9 @@ Part 2: Easy once I got Part 1. All I needed to do was use longs instead of ints
 
 Part 1: This part wasn't too bad. I needed to tweak my wraparound logic, and I got the definition of rows and columns mixed up before reading the problem more closely. Once
 I got past those issues getting the right answer was a breeze.
+
+**Dec 15:**
+
+Part 1: Straightforward if somewhat tedious. For each move, iterate through all squares in the direction the robot is moving. If we hit an empty space, stop.
+If we hit a wall, we don't move. Walk backwards through the squares we collected, set each square equal to the character in the "next" square (going backwards). set
+the initial square (where the robot initally was) to '.'.
