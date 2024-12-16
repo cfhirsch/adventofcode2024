@@ -129,10 +129,15 @@ and for each one, iterate for as long as I can find a segment that connects to t
 
 I tried to make my solution a little more elegant, but that doesn't give the same answer, will have to revisit.
 
-**Dec13:**
+**Dec 13:**
 
 Part 1: Definitely overthought my first stab at this with A* search, and that was taking forever. Then I realized that this looks like a linear programming problem, but with 
 equality instead of <= or >= constraints. And then, duh, two equations in two unknowns. Solve with linear algebra. If the solution for the number of a presses and b presses are
 both integers, there's a solution, otherwise there isn't.
 
 Part 2: Easy once I got Part 1. All I needed to do was use longs instead of ints in the calculations.
+
+**Dec 14:**
+
+Part 1: This part wasn't too bad. I needed to tweak my wraparound logic, and I got the definition of rows and columns mixed up before reading the problem more closely. Once
+I got past those issues getting the right answer was a breeze.
