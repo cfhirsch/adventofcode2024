@@ -134,3 +134,5 @@ I tried to make my solution a little more elegant, but that doesn't give the sam
 Part 1: Definitely overthought my first stab at this with A* search, and that was taking forever. Then I realized that this looks like a linear programming problem, but with 
 equality instead of <= or >= constraints. And then, duh, two equations in two unknowns. Solve with linear algebra. If the solution for the number of a presses and b presses are
 both integers, there's a solution, otherwise there isn't.
+
+Part 2: Easy once I got Part 1. All I needed to do was use longs instead of ints in the calculations.

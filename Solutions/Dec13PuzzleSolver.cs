@@ -10,12 +10,22 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartOne(bool test)
         {
+            return Solve(test, isPartTwo: false);
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return Solve(test, isPartTwo: true);
+        }
+
+        private static string Solve(bool test, bool isPartTwo)
+        {
             List<ClawMachine> machines = ParseInput(test);
 
-            int totalTokens = 0;
+            long totalTokens = 0;
             foreach (ClawMachine machine in machines)
             {
-                (int numTokens, bool foundPrize) = FindPrize(machine, (machine.Prize, 0));
+                (long numTokens, bool foundPrize) = FindPrize(machine, isPartTwo);
                 if (foundPrize)
                 {
                     totalTokens += numTokens;
@@ -25,23 +35,26 @@ namespace adventofcode2024.Solutions
             return totalTokens.ToString();
         }
 
-        public string SolvePartTwo(bool test)
+        private static (long, bool) FindPrize(ClawMachine machine, bool isPartTwo)
         {
-            throw new NotImplementedException();
-        }
+            long prizeX = machine.Prize.Item1, prizeY = machine.Prize.Item2;
 
-        private static (int, bool) FindPrize(ClawMachine machine, ((int, int), int) current)
-        {
-            int detDenom = machine.ButtonA.Item1 * machine.ButtonB.Item2 - machine.ButtonA.Item2 * machine.ButtonB.Item1;
+            if (isPartTwo)
+            {
+                prizeX += 10000000000000;
+                prizeY += 10000000000000;
+            }
 
-            int sumA = machine.ButtonB.Item2 * machine.Prize.Item1 - machine.ButtonB.Item1 * machine.Prize.Item2;
-            int sumB = -1 * machine.ButtonA.Item2 * machine.Prize.Item1 + machine.ButtonA.Item1 * machine.Prize.Item2;
+            long detDenom = machine.ButtonA.Item1 * machine.ButtonB.Item2 - machine.ButtonA.Item2 * machine.ButtonB.Item1;
+
+            long sumA = machine.ButtonB.Item2 * prizeX - machine.ButtonB.Item1 * prizeY;
+            long sumB = -1 * machine.ButtonA.Item2 * prizeX + machine.ButtonA.Item1 * prizeY;
 
             double numA = sumA / (1.0 * detDenom);
             double numB = sumB / (1.0 * detDenom);
 
-            bool hasSolution = numA == (int)numA && numB == (int)numB;
-            int cost = (int)numA * 3 + (int)numB;
+            bool hasSolution = numA == (long)numA && numB == (long)numB;
+            long cost = (long)numA * 3 + (long)numB;
 
             return (cost, hasSolution);
         }
