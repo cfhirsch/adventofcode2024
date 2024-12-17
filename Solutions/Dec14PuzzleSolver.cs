@@ -55,7 +55,7 @@ namespace adventofcode2024.Solutions
                     robot.Update(numRows, numCols);
                 }
 
-                if (i >= 40 && i < 50)
+                if (i >= 90 && i < 100)
                 {
                     Console.WriteLine($"{i} seconds");
                     for (int k = 0; k < numCols; k++)

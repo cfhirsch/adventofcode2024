@@ -147,3 +147,7 @@ I got past those issues getting the right answer was a breeze.
 Part 1: Straightforward if somewhat tedious. For each move, iterate through all squares in the direction the robot is moving. If we hit an empty space, stop.
 If we hit a wall, we don't move. Walk backwards through the squares we collected, set each square equal to the character in the "next" square (going backwards). set
 the initial square (where the robot initally was) to '.'.
+
+**Dec 16:**
+
+Part 1: OK THIS time A* search was the correct approach.

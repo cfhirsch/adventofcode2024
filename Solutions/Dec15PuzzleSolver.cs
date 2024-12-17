@@ -84,12 +84,12 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            return "NotSolved";
         }
 
         private static void PrintMap(bool test, char[,] grid)
         {
-            if (!test)
+            /*if (!test)
             {
                 return;
             }
@@ -102,7 +102,7 @@ namespace adventofcode2024.Solutions
                 }
 
                 Console.WriteLine();
-            }
+            }*/
         }
 
         private static IEnumerable<(int, int)> GetNext((int, int) current, char dir, int numRows, int numCols)
