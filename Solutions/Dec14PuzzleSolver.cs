@@ -48,14 +48,14 @@ namespace adventofcode2024.Solutions
             int numCols = 103;
             int numRows = 101;
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i <= 1; i++)
             {
                 foreach (Robot robot in robots)
                 {
                     robot.Update(numRows, numCols);
                 }
 
-                if (i >= 90 && i < 100)
+                if (i == 2024)
                 {
                     Console.WriteLine($"{i} seconds");
                     for (int k = 0; k < numCols; k++)
@@ -81,7 +81,6 @@ namespace adventofcode2024.Solutions
             }
 
             return "NA";
-
         }
 
         private static List<Robot> GetRobots(bool test)

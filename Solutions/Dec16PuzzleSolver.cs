@@ -8,6 +8,17 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
+            (int score, _) = Solve(test, isPartTwo: false);
+            return score.ToString();
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return "NotFound";
+        }
+
+        public static (int, int) Solve(bool test, bool isPartTwo)
+        {
             (char[,] grid, (int, int) start, (int, int) goal) = ReadMap(test);
 
             ReindeerDirection dir = ReindeerDirection.East;
@@ -20,7 +31,8 @@ namespace adventofcode2024.Solutions
             var dict = new Dictionary<ReindeerNode, long>();
             dict.Add(node, 0);
 
-            long score = Int64.MaxValue;
+            // Use A* search to find the length of the shortest path from start to goal.
+            int score = Int32.MaxValue;
             while (queue.Count > 0)
             {
                 ReindeerNode current = queue.Dequeue();
@@ -45,12 +57,9 @@ namespace adventofcode2024.Solutions
                 }
             }
 
-            return score.ToString();
-        }
+            int numSquaresOnShortestPath = 0;
 
-        public string SolvePartTwo(bool test)
-        {
-            throw new NotImplementedException();
+            return (score, numSquaresOnShortestPath);
         }
 
         private static IEnumerable<ReindeerNode> GetNeighbors(char[,] grid, ReindeerNode current)
@@ -141,11 +150,13 @@ namespace adventofcode2024.Solutions
 
             public ReindeerDirection Direction { get; set; }
 
-            public long Score
+            public ReindeerNode Predecessor { get; set; }
+
+            public int Score
             {
                 get
                 {
-                    long score = Math.Abs(Goal.Item1 - this.Location.Item1) + Math.Abs(Goal.Item2 - this.Location.Item2);
+                    int score = Math.Abs(Goal.Item1 - this.Location.Item1) + Math.Abs(Goal.Item2 - this.Location.Item2);
                     return this.Cost + score;
                 }
             }

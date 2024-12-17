@@ -151,3 +151,7 @@ the initial square (where the robot initally was) to '.'.
 **Dec 16:**
 
 Part 1: OK THIS time A* search was the correct approach.
+
+**Dec 17:**
+
+Part 1: Straightforward "implement this pretend machine" AdventOfCode problem.
