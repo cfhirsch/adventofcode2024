@@ -51,7 +51,77 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            List<(int, int)> data = GetPuzzleData(test);
+            int maxX = test ? 6 : 70;
+            int maxY = test ? 6 : 70;
+            int numSteps = test ? 12 : 1024;
+
+            bool foundExit = true;
+
+            (int low, int high) = (numSteps, data.Count);
+
+            // We use binary search to walk our way through a series of nested intervals (low, high),
+            // with the loop invariant that it is possible to reach the exit with low corrupted bytes,
+            // and that it is NOT possible to reach the exit with high corrupted bytes.
+            // Once high - low = 1, we know that high is the smallest number of corrupted bytes
+            // for which the exit is unreachable.
+            while (high - low > 1)
+            {
+                // Look at midpoint of the interval.
+                int delta = (high - low) / 2;
+                int midpoint = low + delta;
+
+                foundExit = false;
+                var queue = new PriorityQueue<QueueNode, int>();
+                (int, int) goal = (maxX, maxY);
+                var start = new QueueNode { Position = (0, 0), Goal = goal };
+
+                queue.Enqueue(start, start.Score);
+                var dict = new Dictionary<(int, int), int>();
+
+                int cost = Int32.MaxValue;
+                while (queue.Count > 0)
+                {
+                    QueueNode current = queue.Dequeue();
+                    if (current.Position == goal)
+                    {
+                        cost = current.Cost;
+                        foundExit = true;
+                        break;
+                    }
+
+                    foreach ((int, int) neighbor in GetNeighbors(current.Position, maxX, maxY, midpoint, data))
+                    {
+                        var neighborNode = new QueueNode { Cost = current.Cost + 1, Position = neighbor, TimeSteps = current.TimeSteps + 1 };
+
+                        if (!dict.ContainsKey(neighbor))
+                        {
+                            dict[neighbor] = Int32.MaxValue;
+                        }
+
+                        if (neighborNode.Cost < dict[neighbor])
+                        {
+                            dict[neighbor] = neighborNode.Cost;
+                            queue.Enqueue(neighborNode, neighborNode.Score);
+                        }
+                    }
+                }
+
+                if (foundExit)
+                {
+                    // If we reached the exit, set low to the midpoint.
+                    low = midpoint;
+                }
+                else
+                {
+                    // If we couldn't reach the exit, set high to the midpoint.
+                    high = midpoint;
+                }
+            }
+
+            (int x, int y) = data[high - 1];
+
+            return $"{x},{y}";
         }
 
         private IEnumerable<(int, int)> GetNeighbors((int, int) p, int maxX, int maxY, int timeStep, List<(int, int)> data)

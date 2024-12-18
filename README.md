@@ -159,3 +159,7 @@ Part 1: Straightforward "implement this pretend machine" AdventOfCode problem.
 **Dec 18:**
 
 Part 1: Straightforward. I just used A* search, and when looking for a position's neighbors, don't consider any points that are in the first 1024 points in the puzzle input.
+
+Part 2: Looping through all possible corrupted bytes past the first 1024 is too slow. Instead, I used a form of binary search. Let low = 1024, high = total number of corrupted bytes.
+While high - low > 1, run A* search with midpoint corrupted bytes, where midpoint is half way between high and low. If the exit can be reached, set low to midpoint, otherwise set
+high to endpoint. Once high - low = 1, we know that high is the first corrupted byte that makes the exit unreachable.
