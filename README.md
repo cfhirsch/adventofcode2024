@@ -155,3 +155,7 @@ Part 1: OK THIS time A* search was the correct approach.
 **Dec 17:**
 
 Part 1: Straightforward "implement this pretend machine" AdventOfCode problem.
+
+**Dec 18:**
+
+Part 1: Straightforward. I just used A* search, and when looking for a position's neighbors, don't consider any points that are in the first 1024 points in the puzzle input.

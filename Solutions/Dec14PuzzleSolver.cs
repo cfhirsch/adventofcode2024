@@ -44,6 +44,8 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
+            return "NotSolved";
+
             List<Robot> robots = GetRobots(false);
             int numCols = 103;
             int numRows = 101;

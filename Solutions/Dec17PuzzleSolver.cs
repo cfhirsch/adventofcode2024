@@ -86,7 +86,18 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            // 2, 4: regB = regA % 8
+            // 1, 5: regB ^= 5
+            // 7, 5: regC = regA / (2^regB)
+            // 4, 5: regB = regB ^ regC
+            // 0, 3: regA = regA / (2^3)
+            // 1, 6: regB ^= 6
+            // 5, 5: output regB % 8
+            // 3, 0: if regA != 0 go to 0
+
+            // Need to output   2,4,1,5,7,5,4,5,0,3,1,6,5,5,3,0
+
+            return "NotSolved";
         }
 
         private static int GetComboOperand(int op, int regA, int regB, int regC)
