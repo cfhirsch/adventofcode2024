@@ -179,3 +179,5 @@ high to endpoint. Once high - low = 1, we know that high is the first corrupted 
 Part 1: This one is a bear :). My initial recursive solution got stuck on negative instances, so I tried creating a giant regular expression, which also took too long. I added
 a timeout of 100 ms, which gives me the correct solution but takes too long (16 seconds) and definitely won't scale to Part 2. I'm pretty sure I'm going to have to 
 rethink my approach.
+
+UPDATE: I went back to my original recursive solution and added memoization to remember the answers to subproblems. Finding the solution took a little over 200 ms.

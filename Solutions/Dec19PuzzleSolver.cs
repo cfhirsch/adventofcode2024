@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -10,26 +8,19 @@ namespace adventofcode2024.Solutions
         {
             var lines = PuzzleReader.GetPuzzleInput(19, test).ToList();
 
-            string reg = ($"^({string.Join("|", lines[0].Split(",", StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()))})+$");
+            var towels = lines[0].Split(",", StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList();
 
-            var regex = new Regex(reg, RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+            List<string> patterns = lines.Skip(2).ToList();
 
-            List <string> patterns = lines.Skip(2).ToList();
+            var memoized = new Dictionary<string, bool>();
 
             int possible = 0;
 
             foreach (string pattern in patterns)
-            {                
-                try
+            {
+                if (IsPossible(pattern, towels, memoized))
                 {
-                    if (regex.IsMatch(pattern))
-                    {
-                        possible++;
-                    }
-                }
-                catch (RegexMatchTimeoutException)
-                {
-                    // Swallow timeout and move on.
+                    possible++;
                 }
             }
 
@@ -39,6 +30,31 @@ namespace adventofcode2024.Solutions
         public string SolvePartTwo(bool test)
         {
             throw new NotImplementedException();
+        }
+
+        private static bool IsPossible(string pattern, List<string> towels, Dictionary<string, bool> memoized)
+        {
+            if (string.IsNullOrEmpty(pattern))
+            {
+                return true;
+            }
+
+            if (memoized.ContainsKey(pattern))
+            {
+                return memoized[pattern];
+            }
+
+            foreach (string towel in towels.Where(t => pattern.StartsWith(t)).OrderByDescending(t => t.Length))
+            {
+                if (IsPossible(pattern.Substring(towel.Length), towels, memoized))
+                {
+                    memoized[pattern] = true;
+                    return true;
+                }
+            }
+
+            memoized[pattern] = false;
+            return false;
         }
     }
 }
