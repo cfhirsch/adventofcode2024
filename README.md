@@ -181,3 +181,6 @@ a timeout of 100 ms, which gives me the correct solution but takes too long (16 
 rethink my approach.
 
 UPDATE: I went back to my original recursive solution and added memoization to remember the answers to subproblems. Finding the solution took a little over 200 ms.
+
+Part 2: The number of ways to create pattern p with towels ts is the sum of all the ways to make pattern q with towels ts over all q such that p = tq for some towel t.
+Coding this up, using a dictionary to store answers to subproblems yielded a solution that finds the answer in about 300 ms.
