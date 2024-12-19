@@ -156,6 +156,16 @@ Part 1: OK THIS time A* search was the correct approach.
 
 Part 1: Straightforward "implement this pretend machine" AdventOfCode problem.
 
+Part 2: Not so Straightforward :). Not sure if my solution would work for everyone's puzzle input, but my program is a loop that iterates as long as RegA is not zero.
+In every loop iteration, A is divided by 8. So I solved this as follows:
+
+- For i = 0 to 7, run the program with RegA and store the values that output the last number in the program.
+- For each such value x, run the program over the range 8*x to (8*(x + 1)) - 1, and store the values that output the last two numbers in the program.
+- Generalizing, for each value x that outputs the last n numbers in the program, run the program with regA = x and store values that output last n + 1 numbers in the program.
+- We're done once we've found a number that outputs the entire program.
+
+My solution found the answer very quickly (< 5 ms).
+
 **Dec 18:**
 
 Part 1: Straightforward. I just used A* search, and when looking for a position's neighbors, don't consider any points that are in the first 1024 points in the puzzle input.

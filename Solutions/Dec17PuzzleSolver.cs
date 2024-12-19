@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.InteropServices.Marshalling;
+using System.Text.RegularExpressions;
 using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
@@ -9,41 +10,87 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartOne(bool test)
         {
-            (int regA, int regB, int regC, List<int> progam) = ParseInput(test);
+            (long regA, long regB, long regC, List<int> program) = ParseInput(test);
 
-            var output = new List<int>();
+            return Compute(program, regA, regB, regC);
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            // Need to output   2,4,1,5,7,5,4,5,0,3,1,6,5,5,3,0
+            (_, _, _, List<int> program) = ParseInput(test);
+
+            string match = "2,4,1,5,7,5,4,5,0,3,1,6,5,5,3,0";
+            int pos = match.Length - 1;
+
+            var ranges = new List<(long, long)>();
+            ranges.Add((0, 8));
+
+            while (pos >= 0)
+            {
+                var next = new List<(long, long)>();
+
+                string suffix = match.Substring(pos);
+                foreach ((long low, long high) in ranges)
+                {
+                    for (long i = low; i < high; i++)
+                    {
+                        string output = Compute(program, i, 0, 0);
+
+                        if (pos == 0 && output == match)
+                        {
+                            return i.ToString();
+                        }
+
+                        if (output.EndsWith(suffix))
+                        {
+                            next.Add((i * 8, (i + 1) * 8 - 1));
+                        }
+                    }
+                }
+
+                ranges = next;
+                pos -= 2;
+            }
+
+            return "NotSolved";
+        }
+
+        private static string Compute(List<int> program, long regA, long regB, long regC)
+        {
+            var output = new List<long>();
 
             int ip = 0;
-            int numerator = 0;
-            int denominator = 0;
-            while (ip < progam.Count)
+            long numerator = 0;
+            long denominator = 0;
+            while (ip < program.Count)
             {
-                switch (progam[ip])
+                switch (program[ip])
                 {
                     case 0: // adv
                         ip++;
                         numerator = regA;
-                        denominator = (int)Math.Pow(2, GetComboOperand(progam[ip], regA, regB, regC));
+                        denominator = (int)Math.Pow(2, GetComboOperand(program[ip], regA, regB, regC));
                         regA = numerator / denominator;
                         ip++;
                         break;
 
                     case 1: // bxl
                         ip++;
-                        regB ^= progam[ip];
+                        regB ^= program[ip];
                         ip++;
                         break;
 
                     case 2: // bst
                         ip++;
-                        regB = GetComboOperand(progam[ip], regA, regB, regC) % 8;
+                        regB = GetComboOperand(program[ip], regA, regB, regC) % 8;
                         ip++;
                         break;
 
                     case 3: // jnz
                         if (regA != 0)
                         {
-                            ip = progam[ip + 1];
+                            ip = program[ip + 1];
                         }
                         else
                         {
@@ -59,14 +106,14 @@ namespace adventofcode2024.Solutions
 
                     case 5: // out
                         ip++;
-                        output.Add(GetComboOperand(progam[ip], regA, regB, regC) % 8);
+                        output.Add(GetComboOperand(program[ip], regA, regB, regC) % 8);
                         ip++;
                         break;
 
                     case 6: //bdv
                         ip++;
                         numerator = regA;
-                        denominator = (int)Math.Pow(2, GetComboOperand(progam[ip], regA, regB, regC));
+                        denominator = (int)Math.Pow(2, GetComboOperand(program[ip], regA, regB, regC));
                         regB = numerator / denominator;
                         ip++;
                         break;
@@ -74,7 +121,7 @@ namespace adventofcode2024.Solutions
                     case 7: // cdv
                         ip++;
                         numerator = regA;
-                        denominator = (int)Math.Pow(2, GetComboOperand(progam[ip], regA, regB, regC));
+                        denominator = (long)Math.Pow(2, GetComboOperand(program[ip], regA, regB, regC));
                         regC = numerator / denominator;
                         ip++;
                         break;
@@ -84,23 +131,7 @@ namespace adventofcode2024.Solutions
             return string.Join(",", output.ToArray());
         }
 
-        public string SolvePartTwo(bool test)
-        {
-            // 2, 4: regB = regA % 8
-            // 1, 5: regB ^= 5
-            // 7, 5: regC = regA / (2^regB)
-            // 4, 5: regB = regB ^ regC
-            // 0, 3: regA = regA / (2^3)
-            // 1, 6: regB ^= 6
-            // 5, 5: output regB % 8
-            // 3, 0: if regA != 0 go to 0
-
-            // Need to output   2,4,1,5,7,5,4,5,0,3,1,6,5,5,3,0
-
-            return "NotSolved";
-        }
-
-        private static int GetComboOperand(int op, int regA, int regB, int regC)
+        private static long GetComboOperand(int op, long regA, long regB, long regC)
         {
             switch(op)
             {
@@ -126,18 +157,18 @@ namespace adventofcode2024.Solutions
 
         }
 
-        private static (int, int, int, List<int>) ParseInput(bool test)
+        private static (long, long, long, List<int>) ParseInput(bool test)
         {
             var lines = PuzzleReader.GetPuzzleInput(17, test).ToList();
             
             Match match = reg.Match(lines[0]);
-            int regA = Int32.Parse(match.Groups[1].Value);
+            long regA = Int64.Parse(match.Groups[1].Value);
 
             match = reg.Match(lines[1]);
-            int regB = Int32.Parse(match.Groups[1].Value);
+            long regB = Int64.Parse(match.Groups[1].Value);
 
             match = reg.Match(lines[2]);
-            int regC = Int32.Parse(match.Groups[1].Value);
+            long regC = Int64.Parse(match.Groups[1].Value);
 
             List<int> program = lines[4].Substring("Program: ".Length).Split(",").Select(x => Int32.Parse(x)).ToList();
 
