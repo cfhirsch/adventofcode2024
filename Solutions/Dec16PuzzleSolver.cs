@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Security;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -14,7 +12,10 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            return "NotFound";
+            /* (_, int numSquares) = Solve(test, isPartTwo: true);
+             return numSquares.ToString();*/
+
+            return "NotSolved";
         }
 
         public static (int, int) Solve(bool test, bool isPartTwo)
@@ -25,11 +26,14 @@ namespace adventofcode2024.Solutions
 
             var queue = new PriorityQueue<ReindeerNode, long>();
 
-            var node = new ReindeerNode { Goal = goal, Location = start, Direction = ReindeerDirection.East };
+            var node = new ReindeerNode(0, start, goal, ReindeerDirection.East);
             queue.Enqueue(node, node.Score);
 
             var dict = new Dictionary<ReindeerNode, long>();
             dict.Add(node, 0);
+
+            var onShortestPath = new HashSet<(int, int)>();
+            onShortestPath.Add(goal);
 
             // Use A* search to find the length of the shortest path from start to goal.
             int score = Int32.MaxValue;
@@ -39,7 +43,15 @@ namespace adventofcode2024.Solutions
                 if (current.Location == goal)
                 {
                     score = current.Score;
-                    break;
+
+                    if (isPartTwo)
+                    {
+                        onShortestPath = onShortestPath.Union(current.Predecessors).ToHashSet();
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
                 foreach (ReindeerNode neighbor in GetNeighbors(grid, current))
@@ -49,7 +61,8 @@ namespace adventofcode2024.Solutions
                         dict[neighbor] = Int64.MaxValue;
                     }
 
-                    if (neighbor.Cost < dict[neighbor])
+                    bool enqueue = isPartTwo ? (neighbor.Cost <= dict[neighbor]) : (neighbor.Cost < dict[neighbor]);
+                    if (enqueue)
                     {
                         dict[neighbor] = neighbor.Cost;
                         queue.Enqueue(neighbor, neighbor.Score);
@@ -57,9 +70,7 @@ namespace adventofcode2024.Solutions
                 }
             }
 
-            int numSquaresOnShortestPath = 0;
-
-            return (score, numSquaresOnShortestPath);
+            return (score, onShortestPath.Count());
         }
 
         private static IEnumerable<ReindeerNode> GetNeighbors(char[,] grid, ReindeerNode current)
@@ -67,33 +78,78 @@ namespace adventofcode2024.Solutions
             int i, j;
 
             (int, int) reindeerPos = current.Location;
+            HashSet<(int, int)> predecessors = current.Predecessors.Select(x => x).ToHashSet();
             switch (current.Direction)
             {
                 case ReindeerDirection.North:
                     (i, j) = (reindeerPos.Item1 - 1, reindeerPos.Item2);
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.East, Location = current.Location };
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.West, Location = current.Location };
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.East,
+                        predecessors);
+
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.West,
+                        predecessors);
 
                     break;
 
                 case ReindeerDirection.East:
                     (i, j) = (reindeerPos.Item1, reindeerPos.Item2 + 1);
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.North, Location = current.Location };
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.South, Location = current.Location };
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.North,
+                        predecessors);
+
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.South,
+                        predecessors);
 
                     break;
 
                 case ReindeerDirection.South:
                     (i, j) = (reindeerPos.Item1 + 1, reindeerPos.Item2);
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.East, Location = current.Location };
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.West, Location = current.Location };
-
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.East,
+                        predecessors);
+                   
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.West,
+                        predecessors);
+                   
                     break;
 
                 case ReindeerDirection.West:
                     (i, j) = (reindeerPos.Item1, reindeerPos.Item2 - 1);
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.North, Location = current.Location };
-                    yield return new ReindeerNode { Cost = current.Cost + 1000, Goal = current.Goal, Direction = ReindeerDirection.South, Location = current.Location };
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.North,
+                        predecessors);
+                    
+                    yield return new ReindeerNode(
+                        current.Cost + 1000,
+                        current.Location,
+                        current.Goal,
+                        ReindeerDirection.South,
+                        predecessors);
 
                     break;
 
@@ -101,10 +157,16 @@ namespace adventofcode2024.Solutions
                     throw new ArgumentException($"Unexpected direction {current.Direction}.");
             }
 
+            predecessors.Add(current.Location);
             if (i >= 0 && i < grid.GetLength(0) && j >= 0 && j < grid.GetLength(1) &&
                 grid[i, j] != '#')
             {
-                yield return new ReindeerNode { Cost = current.Cost + 1, Direction = current.Direction, Location = (i, j), Goal = current.Goal };
+                yield return new ReindeerNode(
+                        current.Cost + 1,
+                        (i, j),
+                        current.Goal,
+                        current.Direction,
+                        predecessors);
             }
         }
 
@@ -140,8 +202,30 @@ namespace adventofcode2024.Solutions
             return (grid, reindeerPos, goalPos);
         }
 
-        private class ReindeerNode : IComparable<ReindeerNode>, IEquatable<ReindeerNode>
+        public class ReindeerNode : IComparable<ReindeerNode>, IEquatable<ReindeerNode>
         {
+            public ReindeerNode(
+                int cost, 
+                (int, int) location,
+                (int, int) goal, 
+                ReindeerDirection direction,
+                HashSet<(int, int)> predecessors = null)
+            {
+                this.Cost = cost;
+                this.Location = location;
+                this.Goal = goal;
+                this.Direction = direction;
+
+                if (predecessors == null)
+                {
+                    this.Predecessors = new HashSet<(int, int)>();
+                }
+                else
+                {
+                    this.Predecessors = predecessors.Select(x => x).ToHashSet();
+                }
+            }
+
             public (int, int) Location { get; set; }
 
             public (int, int) Goal { get; set; }
@@ -150,7 +234,7 @@ namespace adventofcode2024.Solutions
 
             public ReindeerDirection Direction { get; set; }
 
-            public ReindeerNode Predecessor { get; set; }
+            public HashSet<(int, int)> Predecessors { get; set; }
 
             public int Score
             {
@@ -188,7 +272,7 @@ namespace adventofcode2024.Solutions
             }
         }
 
-        private enum ReindeerDirection
+        public enum ReindeerDirection
         {
             North,
             East,

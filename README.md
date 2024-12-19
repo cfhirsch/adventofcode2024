@@ -173,3 +173,9 @@ Part 1: Straightforward. I just used A* search, and when looking for a position'
 Part 2: Looping through all possible corrupted bytes past the first 1024 is too slow. Instead, I used a form of binary search. Let low = 1024, high = total number of corrupted bytes.
 While high - low > 1, run A* search with midpoint corrupted bytes, where midpoint is half way between high and low. If the exit can be reached, set low to midpoint, otherwise set
 high to endpoint. Once high - low = 1, we know that high is the first corrupted byte that makes the exit unreachable.
+
+**Dec 19:**
+
+Part 1: This one is a bear :). My initial recursive solution got stuck on negative instances, so I tried creating a giant regular expression, which also took too long. I added
+a timeout of 100 ms, which gives me the correct solution but takes too long (16 seconds) and definitely won't scale to Part 2. I'm pretty sure I'm going to have to 
+rethink my approach.
