@@ -184,3 +184,17 @@ UPDATE: I went back to my original recursive solution and added memoization to r
 
 Part 2: The number of ways to create pattern p with towels ts is the sum of all the ways to make pattern q with towels ts over all q such that p = tq for some towel t.
 Coding this up, using a dictionary to store answers to subproblems yielded a solution that finds the answer in about 300 ms.
+
+**Dec 20:**
+
+Part 1: Whew. Took a few tries to get this one. I ended up doing the following:
+
+Find the shortest path from start to end. After doing this, record the length of the shortest path from each square on the path to the goal.
+
+For each square of the short path, look for each possible cheat - that is, any two square move that goes through a wall and ends on the track. 
+
+If we don't know the length of the shortest path from the end square of the cheat to the goal, calcaulate it.
+
+The length of the path following this cheat is equal to the path to the current square plus 2 plus the distance from end cheat square to goal.
+
+Solution took under 100ms to find.

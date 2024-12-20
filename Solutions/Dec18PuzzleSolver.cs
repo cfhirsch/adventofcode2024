@@ -1,5 +1,4 @@
-﻿using System.Xml;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
