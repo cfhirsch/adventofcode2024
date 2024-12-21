@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Reflection;
 using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
@@ -7,17 +7,26 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
+            return Solve(test, isPartTwo: false);
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return Solve(test, isPartTwo: true);
+        }
+
+        private static string Solve(bool test, bool isPartTwo)
+        {
             (char[,] grid, (int, int) start, (int, int) end) = ReadMap(test);
 
-            var usedCheats = new HashSet<((int, int), (int, int))>();
-
-            bool newCheat = true;
             var startNode = new GridNode { Position = start, Goal = end };
 
             int numRows = grid.GetLength(0);
             int numCols = grid.GetLength(1);
 
             var cheatSaves = new List<int>();
+
+            var visitedCheats = new HashSet<((int, int), (int, int))>();
 
             // First, get the shortest path from start to end.
             // Memoize shortest distance from each square along the shortest path to end.
@@ -27,28 +36,48 @@ namespace adventofcode2024.Solutions
 
             int minPath = shortest[start];
 
+            int minLength = 2;
+            int maxLength = isPartTwo ? 20 : 2;
+
             // Now look for all the cheats.
             for (int i = 0; i < path.Count; i++)
             {
-                (int x, int y)  = path[i];
-                foreach (((int, int) cheatStart, (int, int) cheatEnd) in GetCheats(grid, x, y))
+                (int x, int y) = path[i];
+
+                foreach ((int z, int w, int l) in GetReachable(x, y, minLength, maxLength))
                 {
-                    if (!shortest.ContainsKey(cheatEnd))
+                    if (OutOfBounds(z, w, numRows, numCols))
                     {
-                        ShortestPathLength(grid, cheatEnd, end, shortest);
+                        continue;
                     }
 
-                    int finalCost = i + 2 + shortest[cheatEnd];
+                    if (grid[z, w] == '#')
+                    {
+                        continue;
+                    }
+
+                    if (visitedCheats.Contains(((x, y), (z, w))))
+                    {
+                        continue;
+                    }
+
+                    if (!shortest.ContainsKey((z, w)))
+                    {
+                        ShortestPathLength(grid, (z, w), end, shortest);
+                    }
+
+                    int finalCost = i + l + shortest[(z, w)];
                     int saved = minPath - finalCost;
                     if (saved > 0)
                     {
                         cheatSaves.Add(saved);
                     }
 
-                    usedCheats.Add((cheatStart, cheatEnd));
+                    visitedCheats.Add(((x, y), (z, w)));
                 }
             }
 
+            int threshold = test ? 50 : 100;
             if (test)
             {
                 var query = cheatSaves.GroupBy(
@@ -66,17 +95,12 @@ namespace adventofcode2024.Solutions
                 }
             }
 
-            return cheatSaves.Count(c => c >= 100).ToString();
-        }
-
-        public string SolvePartTwo(bool test)
-        {
-            throw new NotImplementedException();
+            return cheatSaves.Count(c => c >= threshold).ToString();
         }
 
         private static List<(int, int)> ShortestPathLength(
-            char[,] grid, 
-            (int, int) start, 
+            char[,] grid,
+            (int, int) start,
             (int, int) end,
             Dictionary<(int, int), int> memoized)
         {
@@ -134,7 +158,7 @@ namespace adventofcode2024.Solutions
             int distance = 0;
 
             path.Add(end);
-            while(pred.ContainsKey(curr) && curr != start)
+            while (pred.ContainsKey(curr) && curr != start)
             {
                 distance++;
                 memoized[pred[curr]] = distance;
@@ -147,21 +171,36 @@ namespace adventofcode2024.Solutions
             return path;
         }
 
-        private static IEnumerable<((int, int), (int, int))> GetCheats(char[,] grid, int i, int j)
+        private static IEnumerable<(int, int, int)> GetReachable(int i, int j, int minLength, int maxLength)
         {
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
-
-            foreach (((int startX, int startY), (int endX, int endY)) in GetCheatCandidates((i, j)))
+            for (int l = minLength; l <= maxLength; l++)
             {
-                if (OutOfBounds(startX, startY, numRows, numCols) || OutOfBounds(endX, endY, numRows, numCols))
+                for (int deltax = 0; deltax <= l; deltax++)
                 {
-                    continue;
-                }
+                    int deltay = l - deltax;
 
-                if (grid[startX, startY] == '#' && grid[endX, endY] != '#')
-                {
-                    yield return ((i, j), (endX, endY));
+                    if (deltax == 0)
+                    {
+                        yield return (i, j + deltay, l);
+
+                        yield return (i, j - deltay, l);
+                    }
+                    else if (deltay == 0)
+                    {
+                        yield return (i + deltax, j, l);
+
+                        yield return (i - deltax, j, l);
+                    }
+                    else
+                    {
+                        yield return (i - deltax, j - deltay, l);
+
+                        yield return (i - deltax, j + deltay, l);
+
+                        yield return (i + deltax, j - deltay, l);
+
+                        yield return (i + deltax, j + deltay, l);
+                    }
                 }
             }
         }
@@ -189,47 +228,6 @@ namespace adventofcode2024.Solutions
 
             // Left
             yield return (x, y - 1);
-        }
-
-        private static IEnumerable<((int, int), (int, int))> GetCheatCandidates((int, int) current)
-        {
-            (int x, int y) = current;
-
-            // up, up
-            yield return ((x - 1, y), (x - 2, y));
-
-            // up, right
-            yield return ((x - 1, y), (x - 1, y + 1));
-
-            // up, left
-            yield return ((x - 1, y), (x - 1, y - 1));
-
-            // right, right
-            yield return ((x, y + 1), (x, y + 2));
-
-            // right, up
-            yield return ((x, y + 1), (x - 1, y + 1));
-
-            // right, down
-            yield return ((x, y + 1), (x + 1, y + 1));
-
-            // down, down
-            yield return ((x + 1, y), (x + 2, y));
-
-            // down, right
-            yield return ((x + 1, y), (x + 1, y + 1));
-
-            // down, left
-            yield return ((x + 1, y), (x + 1, y - 1));
-
-            // left, left
-            yield return ((x, y - 1), (x, y - 2));
-
-            // left, up
-            yield return ((x, y - 1), (x - 1, y - 1));
-
-            // left, down
-            yield return ((x, y - 1), (x + 1, y - 1));
         }
 
         private static (char[,], (int, int), (int, int)) ReadMap(bool test)

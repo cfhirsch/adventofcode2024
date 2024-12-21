@@ -198,3 +198,6 @@ If we don't know the length of the shortest path from the end square of the chea
 The length of the path following this cheat is equal to the path to the current square plus 2 plus the distance from end cheat square to goal.
 
 Solution took under 100ms to find.
+
+Part 2: Needed to refactor my solution. Took me bit, but I figure out how to quickly find all squares within a Manhattan distance of at most l from a given square.
+I used that to generate the cheats. 
