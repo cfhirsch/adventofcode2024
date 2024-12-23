@@ -220,3 +220,7 @@ Part 1: straightforward to just follow the instructions in the puzzle.
 Part 1: I got the idea for the solution from this link: https://iq.opengenus.org/algorithm-to-find-cliques-of-a-given-size-k/. It provides a recursive way to find all
 cliques of size k given all cliques of size k - 1 (the limiting case is k = 2, where you just return the edges of the graph). I had to structure things in a way
 to prevent producing duplicates - namely by representing a clique as a comma delimited list of its vertices, sorted alphabetically.
+
+Part 2: I ended up using the [Bron Kerbosch algorithm](https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm) to find all the maximal cliques in the graph
+(i.e. all cliques that are not subcliques of a larger graph), and then choose the largest one. Ironically my solution for this part was faster than the solution
+for part one (~1.7 seconds as opposed to around 7 seconds).
