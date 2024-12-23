@@ -205,7 +205,7 @@ Solution took under 100ms to find.
 Part 2: Needed to refactor my solution. Took me bit, but I figure out how to quickly find all squares within a Manhattan distance of at most l from a given square.
 I used that to generate the cheats. 
 
-** Dec 21:**
+**Dec 21:**
 
 Part 1: I was having an off day on the 21st, so I had to come back to this the next day. I first set up two dictionaries for each type of key pad. For each 
 pair of characters c1, c2, dict[(c1, c2)] contains a list of all shortest paths from c1 to c2. Then I do the following for each code:
@@ -214,11 +214,11 @@ Generate the list of minimal paths for the numeric key pad. For each of these, g
 for all of these, figure out the length of a shortest path for the second directional key pad. The solution is slow (a little over 16 seconds) but it gets
 the right answer.
 
-** Dec 22:**
+**Dec 22:**
 
 Part 1: straightforward to just follow the instructions in the puzzle.
 
-** Dec 23:**
+**Dec 23:**
 
 Part 1: I got the idea for the solution from this link: https://iq.opengenus.org/algorithm-to-find-cliques-of-a-given-size-k/. It provides a recursive way to find all
 cliques of size k given all cliques of size k - 1 (the limiting case is k = 2, where you just return the edges of the graph). I had to structure things in a way
