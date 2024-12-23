@@ -6,33 +6,30 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
-            return "NotSolved";
-
-            /*var paths = new Dictionary<string, int>();
+            var paths = new Dictionary<string, int>();
 
             Dictionary<(char, char), List<string>> numKeyPadShortest = GetNumericKeyPadShortestPaths();
             Dictionary<(char, char), List<string>> numDirPadShortest = GetDirectionalKeyPadShortestPaths();
 
-
             foreach (string line in PuzzleReader.GetPuzzleInput(21, test))
             {
-                // Get moves for numeric keypad
-                List<char> numKeyPadMoves = GetKeyPadMoves(line.ToArray(), 'A', numKeyPadShortest);
+                IEnumerable<string> numKeyPadPaths = GetAllPossibleMoveSequences(line, 'A', numKeyPadShortest);
+                int min = numKeyPadPaths.Select(p => p.Length).Min();
 
-                PrintMoves(numKeyPadMoves);
+                var dirKeyPadPaths = new List<string>();
+                foreach (string numKeyPadPath in numKeyPadPaths.Where(p => p.Length == min))
+                {
+                    dirKeyPadPaths.AddRange(GetAllPossibleMoveSequences(numKeyPadPath, 'A', numDirPadShortest));
+                }
 
-                // First robot direction keypad.
-                List<char> dirKeyPadMoves1 = GetKeyPadMoves(numKeyPadMoves, 'A', numDirPadShortest);
+                var dirKeyPadPaths2 = new List<string>();
+                min = dirKeyPadPaths.Select(p => p.Length).Min();
+                foreach (string dirKeyPadPath in dirKeyPadPaths.Where(p => p.Length == min))
+                {
+                    dirKeyPadPaths2.AddRange(GetAllPossibleMoveSequences(dirKeyPadPath, 'A', numDirPadShortest));
+                }
 
-                PrintMoves(dirKeyPadMoves1);
-
-                // My direction keypad.
-                List<char> mydirKeyPadMoves = GetKeyPadMoves(dirKeyPadMoves1, 'A', numDirPadShortest);
-
-                PrintMoves(mydirKeyPadMoves);
-
-
-                paths.Add(line, mydirKeyPadMoves.Count);
+                paths[line] = dirKeyPadPaths2.Select(p => p.Length).Min();
             }
 
             long result = 0;
@@ -41,7 +38,7 @@ namespace adventofcode2024.Solutions
                 result += kvp.Value * CodeToNum(kvp.Key);
             }
 
-            return result.ToString();*/
+            return result.ToString();
         }
 
         private static void PrintMoves(IEnumerable<char> moves)
@@ -76,34 +73,53 @@ namespace adventofcode2024.Solutions
                 {
                     result = (10 * result) + Int32.Parse(code[pos].ToString());
                 }
+
+                pos++;
             }
 
             return result;
         }
 
-        private static Dictionary<(char, char), IEnumerable<string>> GetNumericKeyPadShortestPaths()
+        private static IEnumerable<string> GetAllPossibleMoveSequences(string code, char current, Dictionary<(char, char), List<string>> shortestPaths)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                yield return string.Empty;
+                yield break;
+            }
+
+            foreach (string path in shortestPaths[(current, code[0])])
+            {
+                foreach (string subpath in GetAllPossibleMoveSequences(code.Substring(1), code[0], shortestPaths))
+                {
+                    yield return path + "A" + subpath;
+                }
+            }
+        }
+
+        private static Dictionary<(char, char), List<string>> GetNumericKeyPadShortestPaths()
         {
             var chars = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A' };
             return GetKeyPadShortestPaths(chars, GetNumericKeyPadNeigbors);
         }
 
-        private static Dictionary<(char, char), IEnumerable<string>> GetDirectionalKeyPadShortestPaths()
+        private static Dictionary<(char, char), List<string>> GetDirectionalKeyPadShortestPaths()
         {
             var chars = new char[] { '^', 'v', '<', '>', 'A' };
             return GetKeyPadShortestPaths(chars, GetDirectionalKeyPadNeighbors);
         }
 
-        private static Dictionary<(char, char), IEnumerable<string>> GetKeyPadShortestPaths(
+        private static Dictionary<(char, char), List<string>> GetKeyPadShortestPaths(
             char[] chars,
             Func<char, IEnumerable<(char, char)>> neighborFunc)
         {
-            var dict = new Dictionary<(char, char), IEnumerable<string>>();
+            var dict = new Dictionary<(char, char), List<string>>();
 
             for (int i = 0; i < chars.Length; i++)
             {
                 for (int j = 0; j < chars.Length; j++)
                 {
-                    dict[(chars[i], chars[j])] = GetAllShortestPaths(chars[i], chars[j], neighborFunc, new HashSet<char>());
+                    dict[(chars[i], chars[j])] = GetAllShortestPaths(chars[i], chars[j], neighborFunc).ToList();
                 }
             }
 
@@ -112,9 +128,8 @@ namespace adventofcode2024.Solutions
 
         private static IEnumerable<string> GetAllShortestPaths(
             char c1, 
-            char c2, 
-            Func<char, IEnumerable<(char, char)>> neighborFunc,
-            HashSet<char> visited)
+            char c2,
+            Func<char, IEnumerable<(char, char)>> neighborFunc)
         {
             if (c1 == c2)
             {
@@ -122,29 +137,30 @@ namespace adventofcode2024.Solutions
                 yield break;
             }
 
-            visited.Add(c1);
+            var queue = new Queue<KeyPadNode>();
+            queue.Enqueue(new KeyPadNode { Character = c1, Moves = string.Empty });
 
-            foreach ((char dir, char c) in neighborFunc(c1))
+            var visited = new HashSet<char>();
+
+            while (queue.Count > 0)
             {
-                if (visited.Contains(c))
+                var current = queue.Dequeue();
+                visited.Add(current.Character);
+
+                if (current.Character == c2)
                 {
-                    var paths = new List<string>();
-                    foreach (string subpath in GetAllShortestPaths(c, c2, neighborFunc, visited))
-                    {
-                        paths.Add(dir + subpath);
-                    }
+                    yield return current.Moves;
+                }
 
-                    int min = paths.Min(p => p.Length);
-
-                    foreach (string subpath in paths.Where(p => p.Length == min))
+                foreach ((char dir, char c) in neighborFunc(current.Character))
+                {
+                    if (!visited.Contains(c))
                     {
-                        yield return c + subpath;
+                        queue.Enqueue(new KeyPadNode { Character = c, Moves = current.Moves + dir });
                     }
                 }
             }
-
         }
-
 
         private static IEnumerable<(char, char)> GetNumericKeyPadNeigbors(char c)
         {
@@ -260,15 +276,9 @@ namespace adventofcode2024.Solutions
 
         private class KeyPadNode
         {
-            public KeyPadNode(char c)
-            {
-                this.Character = c;
-                this.Moves = new List<char>();
-            }
-
             public char Character { get; set; }
 
-            public List<char> Moves { get; set; }
+            public string Moves { get; set; }
         }
     }
 }

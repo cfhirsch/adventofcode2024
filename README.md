@@ -201,3 +201,16 @@ Solution took under 100ms to find.
 
 Part 2: Needed to refactor my solution. Took me bit, but I figure out how to quickly find all squares within a Manhattan distance of at most l from a given square.
 I used that to generate the cheats. 
+
+** Dec 21:**
+
+Part 1: I was having an off day on the 21st, so I had to come back to this the next day. I first set up two dictionaries for each type of key pad. For each 
+pair of characters c1, c2, dict[(c1, c2)] contains a list of all shortest paths from c1 to c2. Then I do the following for each code:
+
+Generate the list of minimal paths for the numeric key pad. For each of these, generate all the possible shortest paths for the directional key pad. Finally,
+for all of these, figure out the length of a shortest path for the second directional key pad. The solution is slow (a little over 16 seconds) but it gets
+the right answer.
+
+** Dec 22:**
+
+Part 1: straightforward to just follow the instructions in the puzzle.
