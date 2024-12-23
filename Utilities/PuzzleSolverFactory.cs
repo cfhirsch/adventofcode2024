@@ -1,4 +1,5 @@
-﻿using adventofcode2024.Solutions;
+﻿using System.Reflection.Metadata.Ecma335;
+using adventofcode2024.Solutions;
 
 namespace adventofcode2024.Utilities
 {
@@ -67,6 +68,12 @@ namespace adventofcode2024.Utilities
 
                 case 20:
                     return new Dec20PuzzleSolver();
+
+                case 21:
+                    return new Dec21PuzzleSolver();
+
+                case 22:
+                    return new Dec22PuzzleSolver();
 
                 default:
                     throw new ArgumentOutOfRangeException("day");
