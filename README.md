@@ -142,6 +142,9 @@ Part 2: Easy once I got Part 1. All I needed to do was use longs instead of ints
 Part 1: This part wasn't too bad. I needed to tweak my wraparound logic, and I got the definition of rows and columns mixed up before reading the problem more closely. Once
 I got past those issues getting the right answer was a breeze.
 
+Part 2: I cribbed the answer from [this repo](https://gist.github.com/object/c69d0bf44b20cc9b1edb7a9bab5b57d2). The solution is to keep iterating until every robot is in a 
+distinct position. I printed out the grid to make sure I could see a Christmas tree before submitting the answer.
+
 **Dec 15:**
 
 Part 1: Straightforward if somewhat tedious. For each move, iterate through all squares in the direction the robot is moving. If we hit an empty space, stop.

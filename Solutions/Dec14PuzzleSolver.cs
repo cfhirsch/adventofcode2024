@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -7,82 +6,12 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
-            List<Robot> robots = GetRobots(test);
-            int numCols = test ? 7 : 103;
-            int numRows = test ? 11 : 101;
-
-            for (int i = 0; i < 100; i++)
-            {
-                foreach (Robot robot in robots)
-                {
-                    robot.Update(numRows, numCols);
-                }
-            }
-
-            long safetyFactor = 1;
-
-            /*foreach (Robot robot in robots)
-            {
-                Console.WriteLine($"X = {robot.Position.Item1}, Y = {robot.Position.Item2}");
-            }*/
-            
-            // Top left quadrant
-            safetyFactor *= robots.Count(r => r.Position.Item1 < numRows / 2 && r.Position.Item2 < numCols / 2);
-
-            // Top right quadrant
-            safetyFactor *= robots.Count(r => r.Position.Item1 < numRows / 2 && r.Position.Item2 > numCols / 2);
-
-            // Bottom left quadrant
-            safetyFactor *= robots.Count(r => r.Position.Item1 > numRows / 2 && r.Position.Item2 < numCols / 2);
-
-            // Bottom right quadrant
-            safetyFactor *= robots.Count(r => r.Position.Item1 > numRows / 2 && r.Position.Item2 > numCols / 2);
-
-            return safetyFactor.ToString();
-
+            return Solve(test, isPartTwo: false);
         }
 
         public string SolvePartTwo(bool test)
         {
-            return "NotSolved";
-
-            List<Robot> robots = GetRobots(false);
-            int numCols = 103;
-            int numRows = 101;
-
-            for (int i = 0; i <= 1; i++)
-            {
-                foreach (Robot robot in robots)
-                {
-                    robot.Update(numRows, numCols);
-                }
-
-                if (i == 2024)
-                {
-                    Console.WriteLine($"{i} seconds");
-                    for (int k = 0; k < numCols; k++)
-                    {
-                        for (int j = 0; j < numRows; j++)
-                        {
-                            int count = robots.Count(x => x.Position.Item1 == k && x.Position.Item2 == j);
-                            if (count == 0)
-                            {
-                                Console.Write(".");
-                            }
-                            else
-                            {
-                                Console.Write($"{count}");
-                            }
-                        }
-
-                        Console.WriteLine();
-                    }
-
-                    Thread.Sleep(500);
-                }
-            }
-
-            return "NA";
+            return Solve(test, isPartTwo: true);
         }
 
         private static List<Robot> GetRobots(bool test)
@@ -107,6 +36,83 @@ namespace adventofcode2024.Solutions
             }
 
             return robots;
+        }
+
+        private static string Solve(bool test, bool isPartTwo)
+        {
+            List<Robot> robots = GetRobots(test);
+            int numCols = test ? 7 : 103;
+            int numRows = test ? 11 : 101;
+
+            int i = 0;
+            bool overlap = true;
+            while (isPartTwo ? overlap : i < 100)
+            {
+                foreach (Robot robot in robots)
+                {
+                    robot.Update(numRows, numCols);
+                }
+
+                overlap = IsOverlap(robots);
+                i++;
+            }
+
+            if (!isPartTwo)
+            {
+                long safetyFactor = 1;
+
+                // Top left quadrant
+                safetyFactor *= robots.Count(r => r.Position.Item1 < numRows / 2 && r.Position.Item2 < numCols / 2);
+
+                // Top right quadrant
+                safetyFactor *= robots.Count(r => r.Position.Item1 < numRows / 2 && r.Position.Item2 > numCols / 2);
+
+                // Bottom left quadrant
+                safetyFactor *= robots.Count(r => r.Position.Item1 > numRows / 2 && r.Position.Item2 < numCols / 2);
+
+                // Bottom right quadrant
+                safetyFactor *= robots.Count(r => r.Position.Item1 > numRows / 2 && r.Position.Item2 > numCols / 2);
+
+                return safetyFactor.ToString();
+            }
+
+            /*for (int k = 0; k < numCols; k++)
+            {
+                for (int j = 0; j < numRows; j++)
+                {
+                    int count = robots.Count(x => x.Position.Item1 == k && x.Position.Item2 == j);
+                    if (count == 0)
+                    {
+                        Console.Write(".");
+                    }
+                    else
+                    {
+                        Console.Write($"{count}");
+                    }
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.ReadLine();*/
+
+            return i.ToString();
+        }
+
+        private static bool IsOverlap(List<Robot> robots)
+        {
+            var set = new HashSet<(int, int)>();
+            foreach (Robot robot in robots)
+            {
+                if (set.Contains(robot.Position))
+                {
+                    return true;
+                }
+
+                set.Add(robot.Position);
+            }
+
+            return false;
         }
 
         // p=0,4 v=3,-3
