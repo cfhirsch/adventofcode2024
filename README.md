@@ -214,3 +214,9 @@ the right answer.
 ** Dec 22:**
 
 Part 1: straightforward to just follow the instructions in the puzzle.
+
+** Dec 23:**
+
+Part 1: I got the idea for the solution from this link: https://iq.opengenus.org/algorithm-to-find-cliques-of-a-given-size-k/. It provides a recursive way to find all
+cliques of size k given all cliques of size k - 1 (the limiting case is k = 2, where you just return the edges of the graph). I had to structure things in a way
+to prevent producing duplicates - namely by representing a clique as a comma delimited list of its vertices, sorted alphabetically.

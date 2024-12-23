@@ -31,7 +31,7 @@ namespace adventofcode2024.Solutions
 
         public string SolvePartTwo(bool test)
         {
-            throw new NotImplementedException();
+            return "NotSolved";
         }
 
         private static long Mix(long val, long secret)

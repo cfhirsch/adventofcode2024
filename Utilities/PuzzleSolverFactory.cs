@@ -75,6 +75,9 @@ namespace adventofcode2024.Utilities
                 case 22:
                     return new Dec22PuzzleSolver();
 
+                case 23:
+                    return new Dec23PuzzleSolver();
+
                 default:
                     throw new ArgumentOutOfRangeException("day");
             }
