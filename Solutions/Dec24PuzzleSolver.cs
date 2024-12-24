@@ -7,6 +7,77 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
+            (Dictionary<string, bool> wires, List<LogicGate> gates) = GetWiredAndGates(test);
+
+            while (gates.Any(g => !g.Fired))
+            {
+                foreach (LogicGate gate in gates.Where(g => !g.Fired))
+                {
+                    if (wires.ContainsKey(gate.Inputs[0]) && wires.ContainsKey(gate.Inputs[1]))
+                    {
+                        bool input1 = wires[gate.Inputs[0]];
+                        bool input2 = wires[gate.Inputs[1]];
+
+                        switch (gate.Operation)
+                        {
+                            case "AND":
+                                wires[gate.Output] = input1 && input2;
+                                break;
+
+                            case "OR":
+                                wires[gate.Output] = input1 || input2;
+                                break;
+
+                            case "XOR":
+                                wires[gate.Output] = input1 ^ input2;
+                                break;
+
+                            default:
+                                throw new ArgumentException($"Unexpected operation {gate.Operation}.");
+                        }
+
+                        gate.Fired = true;
+                    }
+                }
+            }
+
+            long sum = Calculate(wires, "z");
+            return sum.ToString();
+        }
+
+        public string SolvePartTwo(bool test)
+        {
+            return "NotSolved";
+        }
+
+        private static long Calculate(Dictionary<string, bool> wires, string prefix)
+        {
+            int suffix = 0;
+            long sum = 0;
+            int exp = 0;
+            string label = $"{prefix}00";
+
+            while (wires.ContainsKey(label))
+            {
+                sum += (long)Math.Pow(2, exp) * (wires[label] ? 1 : 0);
+                exp++;
+
+                suffix++;
+                if (suffix < 10)
+                {
+                    label = $"z0{suffix}";
+                }
+                else
+                {
+                    label = $"z{suffix}";
+                }
+            }
+
+            return sum;
+        }
+
+        private static (Dictionary<string, bool>, List<LogicGate>) GetWiredAndGates(bool test)
+        {
             bool wireMode = true;
 
             var wires = new Dictionary<string, bool>();
@@ -50,65 +121,7 @@ namespace adventofcode2024.Solutions
                 }
             }
 
-            while (gates.Any(g => !g.Fired))
-            {
-                foreach (LogicGate gate in gates.Where(g => !g.Fired))
-                {
-                    if (wires.ContainsKey(gate.Inputs[0]) && wires.ContainsKey(gate.Inputs[1]))
-                    {
-                        bool input1 = wires[gate.Inputs[0]];
-                        bool input2 = wires[gate.Inputs[1]];
-
-                        switch (gate.Operation)
-                        {
-                            case "AND":
-                                wires[gate.Output] = input1 && input2;
-                                break;
-
-                            case "OR":
-                                wires[gate.Output] = input1 || input2;
-                                break;
-
-                            case "XOR":
-                                wires[gate.Output] = input1 ^ input2;
-                                break;
-
-                            default:
-                                throw new ArgumentException($"Unexpected operation {gate.Operation}.");
-                        }
-
-                        gate.Fired = true;
-                    }
-                }
-            }
-
-            int suffix = 0;
-            long sum = 0;
-            int exp = 0;
-            label = "z00";
-
-            while (wires.ContainsKey(label))
-            {
-                sum += (long)Math.Pow(2, exp) * (wires[label] ? 1 : 0);
-                exp++;
-
-                suffix++;
-                if (suffix < 10)
-                {
-                    label = $"z0{suffix}";
-                }
-                else
-                {
-                    label = $"z{suffix}";
-                }
-            }
-
-            return sum.ToString();
-        }
-
-        public string SolvePartTwo(bool test)
-        {
-            throw new NotImplementedException();
+            return (wires, gates);
         }
 
         private class LogicGate

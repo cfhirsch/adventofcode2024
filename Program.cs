@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using adventofcode2024.Utilities;
 
-bool test = false;
+bool test = true;
 
 var watch = new Stopwatch();
 for (int i = 1; i <= 24; i++)
