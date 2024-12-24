@@ -227,3 +227,8 @@ to prevent producing duplicates - namely by representing a clique as a comma del
 Part 2: I ended up using the [Bron Kerbosch algorithm](https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm) to find all the maximal cliques in the graph
 (i.e. all cliques that are not subcliques of a larger graph), and then choose the largest one. Ironically my solution for this part was faster than the solution
 for part one (~1.7 seconds as opposed to around 7 seconds).
+
+**Dec 24:**
+
+Part 1: It was straightforward to set up a list of wires and gates, loop until every gate has fired, and then calculate the solution. I did make the mistake of using 
+an int to store the result instead of long, but once I fixed that I got the right answer.
