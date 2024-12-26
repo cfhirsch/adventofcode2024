@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Windows.Markup;
-using adventofcode2024.Utilities;
+﻿using adventofcode2024.Utilities;
 
 namespace adventofcode2024.Solutions
 {
@@ -8,361 +6,29 @@ namespace adventofcode2024.Solutions
     {
         public string SolvePartOne(bool test)
         {
-            (char[,] grid, (int, int) robotPos, IEnumerable<char> moves) = ReadMap(test);
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
-
-            foreach (char move in moves)
-            {
-                var movesToMake = new List<((int, int),(int, int))>();
-                bool cont = true;
-
-                (int, int) current = robotPos;
-
-                foreach ((int, int) next in GetNext(robotPos, move, numRows, numCols))
-                {
-                    if (!cont)
-                    {
-                        break;
-                    }
-
-                    switch (grid[next.Item1, next.Item2])
-                    {
-                        case '.':
-                            cont = false;
-                            movesToMake.Add((current, next));
-                            break;
-
-                        case '#':
-                            cont = false;
-                            movesToMake.Clear();
-                            break;
-
-                        case 'O':
-                            movesToMake.Add((current, next));
-                            break;
-
-                        default:
-                            throw new ArgumentException($"Unexpected char {grid[next.Item1, next.Item2]}");
-                    }
-
-                    current = next;
-                }
-                
-                for (int i = movesToMake.Count - 1; i >= 0; i--)
-                {
-                    grid[movesToMake[i].Item2.Item1, movesToMake[i].Item2.Item2] = grid[movesToMake[i].Item1.Item1, movesToMake[i].Item1.Item2];
-                }
-
-                if (movesToMake.Count > 0)
-                {
-                    grid[movesToMake[0].Item1.Item1, movesToMake[0].Item1.Item2] = '.';
-                    robotPos = movesToMake[0].Item2;
-                }
-
-                PrintMap(test, grid);
-            }
-
-            long sum = 0;
-
-            // The GPS coordinate of a box is equal to 100 times its distance from the top edge of the map
-            // plus its distance from the left edge of the map.
-            for (int i = 0; i < numRows; i++)
-            {
-                for (int j = 0; j < numCols; j++)
-                {
-                    if (grid[i, j] == 'O')
-                    {
-                        sum += (100 * i) + j;
-                    }
-                }
-            }
-
-            return sum.ToString();
+            return Solve(test, isPartTwo: false);
         }
 
         public string SolvePartTwo(bool test)
         {
             return "NotSolved";
+        }
 
-            (char[,] grid, (int, int) robotPos, IEnumerable<char> moves) = ReadMap(test);
+        private static string Solve(bool test, bool isPartTwo)
+        {
+            (HashSet<(int, int)> wallLocations, 
+             HashSet<Box> boxes, 
+             (int, int) robotLocation,
+             List<char> moves,
+             int numRows, 
+             int numCols)
+                = ParseMap(test, isPartTwo);
 
-            (grid, robotPos) = Expand(grid);
-
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
-
+            (int, int) next = (-1, -1);
+            (int, int) current = robotLocation;
             foreach (char move in moves)
             {
-                var movesToMake = new List<((int, int), (int, int))>();
-                bool cont = true;
-
-                (int, int) current = robotPos;
-
-                foreach ((int, int) next in GetNext(robotPos, move, numRows, numCols))
-                {
-                    if (!cont)
-                    {
-                        break;
-                    }
-
-                    switch (grid[next.Item1, next.Item2])
-                    {
-                        case '.':
-                            cont = false;
-                            movesToMake.Add((current, next));
-                            break;
-
-                        case '#':
-                            cont = false;
-                            movesToMake.Clear();
-                            break;
-
-                        case '[':
-                        case ']':
-                            if (move == '>' || move == '<')
-                            {
-                                movesToMake.Add((current, next));
-                            }
-                            else
-                            {
-                                List<((int, int), (int, int))> finalMoves = GetBoxMoves(current, move, grid);
-                                cont = false;
-                                if (!finalMoves.Any())
-                                {
-                                    movesToMake.Clear();
-                                }
-                                else
-                                {
-                                    movesToMake.AddRange(finalMoves);
-                                }
-
-                                break;
-                            }
-
-                            break;
-
-                        default:
-                            throw new ArgumentException($"Unexpected char {grid[next.Item1, next.Item2]}");
-                    }
-
-                    current = next;
-                }
-
-                for (int i = movesToMake.Count - 1; i >= 0; i--)
-                {
-                    grid[movesToMake[i].Item2.Item1, movesToMake[i].Item2.Item2] = grid[movesToMake[i].Item1.Item1, movesToMake[i].Item1.Item2];
-                }
-
-                if (movesToMake.Count > 0)
-                {
-                    grid[movesToMake[0].Item1.Item1, movesToMake[0].Item1.Item2] = '.';
-                    robotPos = movesToMake[0].Item2;
-                }
-
-                // HACK:
-                if (grid[robotPos.Item1, robotPos.Item2 + 1] == ']')
-                {
-                    grid[robotPos.Item1, robotPos.Item2 + 1] = '.';
-                }
-
-                if (grid[robotPos.Item1, robotPos.Item2 - 1] == '[')
-                {
-                    grid[robotPos.Item1, robotPos.Item2 - 1] = '.';
-                }
-
-                PrintMap(test, grid);
-            }
-
-            long sum = 0;
-
-            // The GPS coordinate of a box is equal to 100 times its distance from the top edge of the map
-            // plus its distance from the left edge of the map.
-            for (int i = 0; i < numRows; i++)
-            {
-                for (int j = 0; j < numCols; j++)
-                {
-                    if (grid[i, j] == 'O')
-                    {
-                        sum += (100 * i) + j;
-                    }
-                }
-            }
-
-            return sum.ToString();
-        }
-
-        private static List<((int, int), (int, int))> GetBoxMoves((int, int) current, char move, char[,] grid)
-        {
-            if (move != '^' && move != 'v')
-            {
-                throw new ArgumentException("Move must be ^ or v.");
-            }
-
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
-
-            (int x, int y) = current;
-
-            var queue = new Queue<(int, int)>();
-            queue.Enqueue((move == '^' ? x - 1 : x + 1, y));
-
-            var visited = new HashSet<(int, int)>();
-
-            var moves = new List<((int, int), (int, int))>();
-
-            bool cont = true;
-            while (queue.Count > 0 && cont)
-            {
-                current = queue.Dequeue();
-                (x, y) = current;
-
-                visited.Add(current);
-
-                if (x < 0 || x >= numRows - 1)
-                {
-                    moves = new List<((int, int), (int, int))>();
-                    cont = false;
-                    break;
-                }
-
-                int prevRow = move == '^' ? x + 1 : x - 1;
-                int prevCol = y;
-
-                if (grid[prevRow, y - 1] != '@' && grid[prevRow, y + 1] != '@')
-                {
-                    (int, int) previous = (prevRow, prevCol);
-                    moves.Add((previous, current));
-                }
-
-                (int, int) next1, next2;
-
-                switch (grid[x, y])
-                {
-                    case '#':
-                        moves = new List<((int, int), (int, int))>();
-                        cont = false;
-                    break;
-
-                    case '.':
-                        break;
-
-                    case '[':
-                        // Enqueue the square above/below the current one,
-                        // and the one to the right, which contains the other 
-                        // side of the box.
-
-                        next1 = (move == '^' ? x - 1 : x + 1, y);
-                        next2 = (x, y + 1);
-
-                        if (!visited.Contains(next1))
-                        { 
-                            queue.Enqueue(next1);
-                        }
-
-                        if (!visited.Contains(next2))
-                        {
-                            queue.Enqueue(next2);
-                        }
-
-                        break;
-
-                    case ']':
-                        // Enqueue the square above/below the current one,
-                        // and the one to the left, which contains the other 
-                        // side of the box.
-
-                        next1 = (move == '^' ? x - 1 : x + 1, y);
-                        next2 = (x, y - 1);
-
-                        if (!visited.Contains(next1))
-                        {
-                            queue.Enqueue(next1);
-                        }
-
-                        if (!visited.Contains(next2))
-                        {
-                            queue.Enqueue(next2);
-                        }
-
-                        break;
-
-                    default:
-                        throw new ArgumentException($"Unexpected value {grid[x, y]}.");
-                }
-            }
-
-            return moves;
-        }
-        private static void PrintMap(bool test, char[,] grid)
-        {
-            if (!test)
-            {
-                return;
-            }
-
-            for (int i = 0; i < grid.GetLength(0); i++)
-            {
-                for (int j = 0; j < grid.GetLength(1); j++)
-                {
-                    Console.Write(grid[i, j]);
-                }
-
-                Console.WriteLine();
-            }
-        }
-
-        private static (char[,], (int, int)) Expand(char[,] grid)
-        {
-            int numRows = grid.GetLength(0);
-            int numCols = grid.GetLength(1);
-
-            var expanded = new char[numRows, numCols * 2];
-
-            int robotX = -1, robotY = -1;
-
-            for (int i = 0; i < numRows; i++)
-            {
-                for (int j = 0; j < numCols; j++)
-                {
-                    switch(grid[i, j])
-                    {
-                        case '#':
-                            expanded[i, 2 * j] = expanded[i, 2 * j + 1] = '#';
-                            break;
-
-                        case 'O':
-                            expanded[i, 2 * j] = '[';
-                            expanded[i, 2 * j + 1] = ']';
-                            break;
-
-                        case '.':
-                            expanded[i, 2 * j] = expanded[i, 2 * j + 1] = '.';
-                            break;
-
-                        case '@':
-                            expanded[i, 2 * j] = '@';
-                            expanded[i, 2 * j + 1] = '.';
-                            robotX = i;
-                            robotY = 2 * j;
-                            break;
-
-                        default:
-                            throw new ArgumentException($"Unexpected value {grid[i, j]}");
-                    }
-                }
-            }
-
-            return (expanded, (robotX, robotY));
-        }
-
-        private static IEnumerable<(int, int)> GetNext((int, int) current, char dir, int numRows, int numCols)
-        {
-            (int, int) next = (-1, -1);
-
-            while (true)
-            {
-                switch (dir)
+                switch (move)
                 {
                     case '^':
                         next = (current.Item1 - 1, current.Item2);
@@ -379,32 +45,296 @@ namespace adventofcode2024.Solutions
                     case '<':
                         next = (current.Item1, current.Item2 - 1);
                         break;
-
-                    default:
-                        throw new ArgumentException($"Unexpected direction {dir}.");
                 }
 
-                if (next.Item1 < 0 || next.Item1 > numRows - 1 || next.Item2 < 0 || next.Item2 > numCols - 1)
+                if (wallLocations.Contains(next))
                 {
-                    break;
+                    continue;
                 }
 
-                yield return next;
+                if (boxes.Any(b => b.Left == next || b.Right == next))
+                {
+                    var boxesToMove = BoxesToMove(wallLocations, boxes, next, move, numRows, isPartTwo);
+
+                    if (!boxesToMove.Any())
+                    {
+                        continue;
+                    }
+
+                    boxes = boxes.Except(boxesToMove).ToHashSet();
+                    foreach (Box box in boxesToMove)
+                    {
+                        switch (move)
+                        {
+                            case '^':
+                                boxes.Add(new Box(
+                                    box.Left.Item1 - 1, 
+                                    box.Left.Item2,
+                                    box.Right.Item1 - 1, 
+                                    box.Right.Item2));
+
+                                break;
+
+                            case 'v':
+                                boxes.Add(new Box(
+                                    box.Left.Item1 + 1,
+                                    box.Left.Item2,
+                                    box.Right.Item1 + 1,
+                                    box.Right.Item2));
+
+                                break;
+
+                            case '>':
+                                boxes.Add(new Box(
+                                    box.Left.Item1,
+                                    box.Left.Item2 + 1,
+                                    box.Right.Item1,
+                                    box.Right.Item2 + 1));
+
+                                break;
+
+                            case '<':
+                                boxes.Add(new Box(
+                                    box.Left.Item1,
+                                    box.Left.Item2 - 1,
+                                    box.Right.Item1,
+                                    box.Right.Item2 - 1));
+
+                                break;
+                        }
+                    }
+                }
 
                 current = next;
+
+                //PrintMap(test, wallLocations, boxes, current, numRows, numCols, isPartTwo);
+            }
+
+            long sum = 0;
+            foreach (Box box in boxes)
+            {
+                sum += 100 * box.Left.Item1 + box.Left.Item2;
+            }
+
+            return sum.ToString();
+        }
+
+        // Is box b1 above box b2?
+        private static bool IsAbove(Box b1, Box b2)
+        {
+            if (b1.Left.Item1 == b2.Left.Item1 - 1)
+            {
+                if (b1.Left.Item2 == b2.Left.Item2 ||
+                    b1.Left.Item2 == b2.Right.Item2 ||
+                    b1.Right.Item2 == b2.Left.Item2 ||
+                    b1.Right.Item2 == b2.Right.Item2)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static List<Box> BoxesToMove(
+            HashSet<(int, int)> wallLocations,
+            HashSet<Box> boxes,
+            (int, int) startPos,
+            char move,
+            int numRows,
+            bool isPartTwo)
+        {
+            (int, int) current = startPos;
+            var boxesToMove = new List<Box>();
+            int row = current.Item1;
+            int col = current.Item2;
+            Box currentBox = null;
+            switch (move)
+            {
+                case '>':
+                    currentBox = boxes.FirstOrDefault(b => b.Left == current);
+                    while (currentBox != null)
+                    {
+                        boxesToMove.Add(currentBox);
+                        current = (current.Item1, current.Item2 + (isPartTwo ? 2 : 1));
+                        currentBox = boxes.FirstOrDefault(b => b.Left == current);
+                    }
+
+                    if (wallLocations.Contains(current))
+                    {
+                        boxesToMove.Clear();
+                    }
+
+                    break;
+
+                case '<':
+                    currentBox = boxes.FirstOrDefault(b => b.Right == current);
+                    while (currentBox != null)
+                    {
+                        boxesToMove.Add(currentBox);
+                        current = (current.Item1, current.Item2 - (isPartTwo ? 2 : 1));
+                        currentBox = boxes.FirstOrDefault(b => b.Right == current);
+                    }
+
+                    if (wallLocations.Contains(current))
+                    {
+                        boxesToMove.Clear();
+                    }
+
+                    break;
+
+                case '^':
+                    var box1 = boxes.First(b => b.Left == current || b.Right == current);
+                    boxesToMove.Add(box1);
+
+                    row--;
+                    while (row >= 0)
+                    {
+                        current = (row, current.Item2);
+                        if (wallLocations.Contains(current))
+                        {
+                            boxesToMove.Clear();
+                            break;
+                        }
+
+                        var boxesInRow = boxes.Where(b => b.Left.Item1 == row);
+                        var boxesToAdd = boxesInRow.Where(b => boxesToMove.Any(b2 => IsAbove(b, b2)));
+
+                        if (!boxesToAdd.Any())
+                        {
+                            break;
+                        }
+
+                        if (boxesToAdd.Any(b => wallLocations.Any(
+                            w => w.Item1 == b.Left.Item1 - 1 &&
+                                 (w.Item2 == b.Left.Item2 || w.Item2 == b.Right.Item2))))
+                        {
+                            boxesToMove.Clear();
+                            break;
+                        }
+
+                        boxesToMove.AddRange(boxesToAdd);
+                        row--;
+                    }
+
+                    break;
+
+                case 'v':
+                    var box2 = boxes.First(b => b.Left == current || b.Right == current);
+                    boxesToMove.Add(box2);
+
+                    row++;
+                    while (row <= numRows - 1)
+                    {
+                        current = (row, current.Item2);
+                        if (wallLocations.Contains(current))
+                        {
+                            boxesToMove.Clear();
+                            break;
+                        }
+
+                        var boxesInRow = boxes.Where(b => b.Left.Item1 == row);
+                        var boxesToAdd = boxesInRow.Where(b => boxesToMove.Any(b2 => IsAbove(b2, b)));
+
+                        if (!boxesToAdd.Any())
+                        {
+                            break;
+                        }
+
+                        if (boxesToAdd.Any(b => wallLocations.Any(
+                            w => w.Item1 == b.Left.Item1 + 1 &&
+                                 (w.Item2 == b.Left.Item2 || w.Item2 == b.Right.Item2))))
+                        {
+                            boxesToMove.Clear();
+                            break;
+                        }
+
+                        boxesToMove.AddRange(boxesToAdd);
+                        row++;
+                    }
+
+                    break;
+            }
+
+            return boxesToMove;
+        }
+
+        private static void PrintMap(
+            bool test, 
+            HashSet<(int, int)> wallLocations,
+            HashSet<Box> boxes,
+            (int, int) robotPosition,
+            int numRows,
+            int numCols,
+            bool isPartTwo)
+        {
+            if (!test)
+            {
+                return;
+            }
+
+            for (int i = 0; i < numRows; i++)
+            {
+                for (int j = 0; j < numCols; j++)
+                {
+                    (int, int) current = (i, j);
+
+                    if (robotPosition == current)
+                    {
+                        Console.Write('@');
+                    }
+                    else if (wallLocations.Contains(current))
+                    {
+                        Console.Write('#');
+                    }
+                    else
+                    {
+                        if (isPartTwo)
+                        {
+                            if (boxes.Any(b => b.Left == current))
+                            {
+                                Console.Write('[');
+                            }
+                            else if (boxes.Any(b => b.Right == current))
+                            {
+                                Console.Write(']');
+                            }
+                            else
+                            {
+                                Console.Write('.');
+                            }
+                        }
+                        else
+                        {
+                            if (boxes.Any(b => b.Left == current))
+                            {
+                                Console.Write('O');
+                            }
+                            else
+                            {
+                                Console.Write('.');
+                            }
+                        }
+                    }
+                }
+
+                Console.WriteLine();
             }
         }
 
-        private static (char[,], (int, int), IEnumerable<char> moves) ReadMap(bool test)
+        private static (HashSet<(int, int)>, HashSet<Box>, (int, int), List<char>, int, int) ParseMap(bool test, bool isPartTwo)
         {
+            var wallLocations = new HashSet<(int, int)>();
+            var boxes = new HashSet<Box>();
+            var robotLocation = (-1, -1);
+
             var lines = PuzzleReader.GetPuzzleInput(15, test).ToList();
-            
+
             var mapLines = new List<string>();
 
             var moves = new List<char>();
 
             bool mapMode = true;
-            (int, int) robotPos = (-1, -1);
             foreach (string line in lines)
             {
                 if (string.IsNullOrEmpty(line))
@@ -431,21 +361,86 @@ namespace adventofcode2024.Solutions
 
             int numRows = mapLines.Count;
             int numCols = mapLines[0].Length;
-            var grid = new char[numRows, numCols];
             
-            for (int i = 0; i < numRows;  i++)
+            for (int i = 0; i < numRows; i++)
             {
                 for (int j = 0; j < numCols; j++)
                 {
-                    grid[i, j] = mapLines[i][j];
-                    if (grid[i, j] == '@')
+                    if (mapLines[i][j] == '#')
                     {
-                        robotPos = (i, j);
+                        if (isPartTwo)
+                        {
+                            wallLocations.Add((i, 2 * j));
+                            wallLocations.Add((i, 2 * j + 1));
+                        
+                        }
+                        else
+                        {
+                            wallLocations.Add((i, j));
+                        }
+                    }
+
+                    if (mapLines[i][j] == '@')
+                    {
+                        if (isPartTwo)
+                        {
+                            robotLocation = (i, 2 * j);
+                        }
+                        else
+                        {
+                            robotLocation = (i, j);
+                        }
+                    }
+
+                    if (mapLines[i][j] == 'O')
+                    {
+                        if (isPartTwo)
+                        {
+                            boxes.Add(new Box(i, j * 2, i, j * 2 + 1));
+                        }
+                        else
+                        {
+                            boxes.Add(new Box(i, j, i, j));
+                        }
                     }
                 }
             }
 
-            return (grid, robotPos, moves);
+            return (wallLocations, boxes, robotLocation, moves, numRows, isPartTwo ? numCols * 2 : numCols);
+        }
+
+        private class Box : IEquatable<Box>
+        {
+            public Box(int leftx, int lefty, int rightx, int righty)
+            {
+                this.Left = (leftx, lefty);
+                this.Right = (rightx, righty);
+            }
+
+            public (int, int) Left { get; set; }
+
+            public (int, int) Right { get; set; }
+
+            public bool Equals(Box? other)
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+
+                return this.Left == other.Left && this.Right == other.Right;
+
+            }
+
+            public override int GetHashCode()
+            {
+                return this.Left.GetHashCode() ^ this.Right.GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return $"({this.Left.Item1},{this.Left.Item2}),({this.Right.Item1},{this.Right.Item2})";
+            }
         }
     }
 }

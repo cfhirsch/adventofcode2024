@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using adventofcode2024.Utilities;
 
-bool test = true;
+bool test = false;
 
 var watch = new Stopwatch();
-for (int i = 1; i <= 24; i++)
+for (int i = 1; i <= 25; i++)
 {
     IPuzzleSolver puzzleSolver = PuzzleSolverFactory.GetPuzzleSolver(i);
     Console.WriteLine("===========================================================================");

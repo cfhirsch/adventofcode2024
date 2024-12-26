@@ -232,3 +232,9 @@ for part one (~1.7 seconds as opposed to around 7 seconds).
 
 Part 1: It was straightforward to set up a list of wires and gates, loop until every gate has fired, and then calculate the solution. I did make the mistake of using 
 an int to store the result instead of long, but once I fixed that I got the right answer.
+
+**Dec 25:**
+
+Part 1: Cut and dried, although my code had a bug where it failed to add the last entry in the input file to the list of keys and locks.
+
+Part 2: Merry Christmas!
